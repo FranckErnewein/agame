@@ -1,6 +1,6 @@
-import { useReducer, ReactNode, useEffect } from "react";
+import { useReducer, ReactNode } from "react";
 
-import { gameReducer, timer } from "../game";
+import { gameReducer } from "../game";
 import { generateGame } from "../generator";
 import { GameContext } from "./GameContext";
 

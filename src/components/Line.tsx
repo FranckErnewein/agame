@@ -1,7 +1,7 @@
 import { FC, useCallback } from "react";
 import { Graphics } from "@pixi/react";
 import * as PIXI from "pixi.js";
-import { Position } from "../game";
+import { Position } from "../position";
 
 export interface LineProps {
   // color: number;

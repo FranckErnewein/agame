@@ -1,5 +1,5 @@
 import { UA } from "./physics";
-import { Positionable } from "./game";
+import { Positionable } from "./position";
 
 interface CSSPosition {
   top: string;

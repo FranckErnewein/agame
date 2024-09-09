@@ -1,9 +1,11 @@
 import { useState, FC, Dispatch } from "react";
 import { Sprite, Container } from "@pixi/react";
 
-import { Planet, GameAction, Game, Position, planetRadius } from "../game";
+import { Planet, GameAction, Game, planetInfluence } from "../game";
+import { Position } from "../position";
 import { PlayerUI, PlayerUIAction } from "../playerUI";
 import { metersToPx, pxToMeter } from "../display";
+import { createShip } from "../generator";
 
 import Line from "./Line";
 import Circle from "./Circle";
@@ -25,8 +27,7 @@ const PlanetComponent: FC<PlanetComponentProps> = ({
   ui,
 }) => {
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const radius = planetRadius(planet);
-  const size = metersToPx(radius);
+  const size = metersToPx(planet.radius * 2);
   const selected = planet === ui.planetSelected;
 
   const x = metersToPx(planet.position.x);
@@ -46,17 +47,13 @@ const PlanetComponent: FC<PlanetComponentProps> = ({
                 type: "SEND_SHIP",
                 planet,
                 player: game.players[0],
-                ship: {
-                  orbit: null,
-                  position: {
+                ship: createShip(
+                  {
                     x: planet.position.x + pxToMeter(position.x),
                     y: planet.position.y + pxToMeter(position.y),
                   },
-                  velocity: {
-                    x: position.x * 7,
-                    y: position.y * 7,
-                  },
-                },
+                  { x: position.x * 7, y: position.y * 7 }
+                ),
               });
             }
       }
@@ -68,18 +65,14 @@ const PlanetComponent: FC<PlanetComponentProps> = ({
         <Container alpha={0.3}>
           <Line to={position} />
           <ShipComponent
-            ship={{
-              orbit: null,
-              position: {
-                x: pxToMeter(position.x),
-                y: pxToMeter(position.y),
-              },
-              velocity: position,
-            }}
+            ship={createShip({
+              x: pxToMeter(position.x),
+              y: pxToMeter(position.y),
+            })}
           />
         </Container>
       )}
-      {selected && <Circle radius={size * 2} />}
+      {selected && <Circle radius={planetInfluence} />}
     </Container>
   );
 };
