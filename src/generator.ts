@@ -1,3 +1,4 @@
+import { Vec2 } from "./vector";
 import { times, random } from "lodash/fp";
 import { Position, distance } from "./position";
 import {
@@ -18,10 +19,7 @@ export const createPlayer = (player: Partial<Player> = {}): Player => ({
   ...player,
 });
 
-const center: () => Position = () => ({
-  x: MapSizeX / 2,
-  y: MapSizeY / 2,
-});
+const center = (): Position => [MapSizeX / 2, MapSizeY / 2];
 
 const createDefaultPlayers: (n: number) => Player[] = times(() =>
   createPlayer({})
@@ -29,10 +27,10 @@ const createDefaultPlayers: (n: number) => Player[] = times(() =>
 
 const randomMassForPlanet = () => random(1e24, 1e26);
 
-const randomPosition = () => ({
-  x: random(100, MapSizeX - 100),
-  y: random(100, MapSizeY - 100),
-});
+const randomPosition = (): Position => [
+  random(100, MapSizeX - 100),
+  random(100, MapSizeY - 100),
+];
 
 export const massToRadius = (mass: number): number =>
   Math.cbrt((3 * mass * 1000000) / (4 * Math.PI));
@@ -51,7 +49,7 @@ const createPlanet = (
 
 export const createShip = (
   position = center(),
-  velocity = { x: 0, y: 0 }
+  velocity: Vec2 = [0, 0]
 ): Ship => ({
   orbit: null,
   radius: massToRadius(shipMass),
@@ -97,8 +95,8 @@ export function generateRandomGame(playerCount: number): Game {
           {
             radius: massToRadius(shipMass),
             orbit: null,
-            position: { x: UA / 2, y: UA / 2 },
-            velocity: { x: 400, y: -100 },
+            position: [UA / 2, UA / 2],
+            velocity: [400, -100],
           },
         ],
       }),

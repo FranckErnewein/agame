@@ -1,22 +1,15 @@
+import { compose } from "lodash/fp";
 import { UA } from "./physics";
-import { Positionable } from "./position";
-
-interface CSSPosition {
-  top: string;
-  left: string;
-}
+import { getAngle, map } from "./vector";
+import { getPosition, Positionable, Movable } from "./position";
 
 export const pxPerUA = 500;
 export const mpx = UA / pxPerUA;
 export const metersToPx = (meters: number) => Math.round(meters / mpx);
 export const pxToMeter = (px: number) => px * mpx;
 
-export const toPixiPosition = (p: Positionable): [number, number] => [
-  metersToPx(p.position.x),
-  metersToPx(p.position.y),
-];
+export const toPixiPosition = (p: Positionable): [number, number] => p.position;
 
-export const screenPosition = (p: Positionable): CSSPosition => ({
-  top: `${metersToPx(p.position.y)}px`,
-  left: `${metersToPx(p.position.x)}px`,
-});
+export const pxPosition = compose(map(metersToPx), getPosition);
+
+export const orientation = (m: Movable): number => getAngle(m.velocity);

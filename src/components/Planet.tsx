@@ -2,9 +2,10 @@ import { useState, FC, Dispatch } from "react";
 import { Sprite, Container } from "@pixi/react";
 
 import { Planet, GameAction, Game, planetInfluence } from "../game";
+import { add, scale, map } from "../vector";
 import { Position } from "../position";
 import { PlayerUI, PlayerUIAction } from "../playerUI";
-import { metersToPx, pxToMeter } from "../display";
+import { metersToPx, pxToMeter, pxPosition } from "../display";
 import { createShip } from "../generator";
 
 import Line from "./Line";
@@ -26,18 +27,18 @@ const PlanetComponent: FC<PlanetComponentProps> = ({
   game,
   ui,
 }) => {
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [cursorPosition, setPosition] = useState<Position>([0, 0]);
   const size = metersToPx(planet.radius * 2);
   const selected = planet === ui.planetSelected;
 
-  const x = metersToPx(planet.position.x);
-  const y = metersToPx(planet.position.y);
+  const x = metersToPx(cursorPosition[0]);
+  const y = metersToPx(cursorPosition[1]);
 
   return (
     <Container
       eventMode="static"
       onmousemove={(e) => {
-        setPosition({ x: e.screen.x - x, y: e.screen.y - y });
+        setPosition([e.screen.x - x, e.screen.y - y]);
       }}
       onclick={
         !selected
@@ -48,28 +49,20 @@ const PlanetComponent: FC<PlanetComponentProps> = ({
                 planet,
                 player: game.players[0],
                 ship: createShip(
-                  {
-                    x: planet.position.x + pxToMeter(position.x),
-                    y: planet.position.y + pxToMeter(position.y),
-                  },
-                  { x: position.x * 7, y: position.y * 7 }
+                  add(planet.position)(map(pxToMeter)(cursorPosition)),
+                  scale(7)(cursorPosition)
                 ),
               });
             }
       }
       alpha={selected ? 1 : 0.5}
-      position={[x, y]}
+      position={pxPosition(planet)}
     >
       <Sprite width={size} height={size} anchor={0.5} image="/planet.png" />
       {selected && (
         <Container alpha={0.3}>
-          <Line to={position} />
-          <ShipComponent
-            ship={createShip({
-              x: pxToMeter(position.x),
-              y: pxToMeter(position.y),
-            })}
-          />
+          <Line to={cursorPosition} />
+          <ShipComponent ship={createShip(map(pxToMeter)(cursorPosition))} />
         </Container>
       )}
       {selected && <Circle radius={planetInfluence} />}

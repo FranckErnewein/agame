@@ -1,6 +1,7 @@
 import { minBy, compact, map, filter, flatMap, compose } from "lodash/fp";
 import { G, UA } from "./physics";
 import { generateGame } from "./generator";
+import { add, sub, scale } from "./vector";
 import {
   Position,
   Positionable,
@@ -57,26 +58,22 @@ export const findCloserPlanet =
 
 export const nextPosition =
   (second: number) =>
-  (position: Position) =>
-  (speed: Velocity): Position => ({
-    x: position.x + speed.x * second,
-    y: position.y + speed.y * second,
-  });
+  ([px, py]: Position) =>
+  ([vx, vy]: Velocity): Position =>
+    [px + vx * second, py + vy * second];
 
 export const deflectShipVelocity =
   (second: number) =>
   (ship: Ship, planet: Planet): Ship => {
     const d = distance(planet)(ship); //m
-    const dx = planet.position.x - ship.position.x; //m
-    const dy = planet.position.y - ship.position.y; //m
     const f = (G * planet.currentMass * 1) / (d * d); //N = (kg m2 s-2)
-    return {
-      ...ship,
-      velocity: {
-        x: ship.velocity.x + f * (dx / d) * second,
-        y: ship.velocity.y + f * (dy / d) * second,
-      },
-    };
+    const velocity = compose(
+      add(ship.velocity),
+      scale((f / d) * second),
+      sub(planet.position)
+    )(ship.position);
+
+    return { ...ship, velocity };
   };
 
 export const applyGravity =
@@ -85,7 +82,7 @@ export const applyGravity =
   (ship: Ship): Ship =>
     planets.reduce(deflectShipVelocity(second), ship);
 
-export const isInWorld = ({ position: { x, y } }: Positionable) => {
+export const isInWorld = ({ position: [x, y] }: Positionable) => {
   return x > 0 && y > 0 && x < MapSizeX && y < MapSizeY;
 };
 
@@ -125,8 +122,7 @@ export const gameEventLoop =
     clusters.forEach((ships, planet) => {
       ships.forEach((ship) => {
         if (hit(ship)(planet)) {
-          ship.velocity.x = -ship.velocity.x;
-          ship.velocity.y = -ship.velocity.y;
+          ship.velocity = scale(-1)(ship.velocity);
         }
       });
     });

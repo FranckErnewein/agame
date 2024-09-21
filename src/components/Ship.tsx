@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Sprite, Container } from "@pixi/react";
 import { Ship } from "../game";
-import { toPixiPosition, metersToPx } from "../display";
+import { metersToPx, orientation, pxPosition } from "../display";
 
 export interface ShipComponentProps {
   ship: Ship;
@@ -12,8 +12,8 @@ const ShipComponent: FC<ShipComponentProps> = ({ ship }) => {
   return (
     <Container
       alpha={1}
-      position={toPixiPosition(ship)}
-      rotation={Math.atan2(ship.velocity.y, ship.velocity.x)}
+      rotation={orientation(ship)}
+      position={pxPosition(ship)}
     >
       <Sprite width={size} height={size} anchor={0.5} image="/ship.png" />
     </Container>
