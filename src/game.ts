@@ -11,6 +11,7 @@ import {
   distance,
   move,
   hit,
+  bounce,
 } from "./position";
 
 export type Ship = Movable &
@@ -82,6 +83,13 @@ export const applyGravity =
   (ship: Ship): Ship =>
     planets.reduce(deflectShipVelocity(second), ship);
 
+export const bounceOnPlanets =
+  (planets: Planet[]) =>
+  (ship: Ship): Ship => {
+    const planet = planets.find(hit(ship));
+    return planet ? bounce(planet)(ship) : ship;
+  };
+
 export const isInWorld = ({ position: [x, y] }: Positionable) => {
   return x > 0 && y > 0 && x < MapSizeX && y < MapSizeY;
 };
@@ -108,24 +116,24 @@ export const iterateShipsPair = (ships: Ship[]) =>
 export const gameEventLoop =
   (timer: number) =>
   (game: Game): Game => {
-    const { planets, players } = game;
-    const clusters = new Map<Planet, Ship[]>();
-    planets.forEach((p) => clusters.set(p, []));
+    // const { planets, players } = game;
+    // const clusters = new Map<Planet, Ship[]>();
+    // planets.forEach((p) => clusters.set(p, []));
 
-    players.forEach((player) =>
-      player.ships.forEach((ship) => {
-        const closerPlanet = findCloserPlanet(ship)(planets);
-        if (closerPlanet) clusters.get(closerPlanet)?.push(ship);
-      })
-    );
+    // players.forEach((player) =>
+    // player.ships.forEach((ship) => {
+    // const closerPlanet = findCloserPlanet(ship)(planets);
+    // if (closerPlanet) clusters.get(closerPlanet)?.push(ship);
+    // })
+    // );
 
-    clusters.forEach((ships, planet) => {
-      ships.forEach((ship) => {
-        if (hit(ship)(planet)) {
-          ship.velocity = scale(-1)(ship.velocity);
-        }
-      });
-    });
+    // clusters.forEach((ships, planet) => {
+    // ships.forEach((ship) => {
+    // if (hit(ship)(planet)) {
+    // ship.velocity = scale(-1)(ship.velocity);
+    // }
+    // });
+    // });
 
     return {
       ...game,
@@ -134,6 +142,7 @@ export const gameEventLoop =
         ...player,
         ships: compose(
           map(applyGravity(timer)(game.planets)),
+          map(bounceOnPlanets(game.planets)),
           map(move(timer)),
           filter(isInWorld)
         )(player.ships),

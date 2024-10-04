@@ -1,42 +1,53 @@
 import { describe, it, expect } from "vitest";
-import { clone } from "lodash/fp";
-import { Movable, distance, move } from "./position";
+import { Vec2 } from "./vector";
+import {
+  Movable,
+  Positionable,
+  Hitable,
+  distance,
+  move,
+  replaceOnSurface,
+} from "./position";
 
-const defaultMovable: Movable = {
-  velocity: {
-    x: 100,
-    y: 0,
-  },
-  position: {
-    x: 0,
-    y: 0,
-  },
-};
+const movable = (
+  position: Vec2 = [0, 0],
+  velocity: Vec2 = [0, 0]
+): Movable => ({
+  velocity,
+  position,
+});
+
+const positionable = (x = 0, y = 0): Positionable => ({
+  position: [x, y],
+});
+
+const hitable = (x = 0, y = 0, radius = 1): Hitable => ({
+  position: [x, y],
+  radius,
+});
 
 describe("position", () => {
   describe("move", () => {
     it("move right", () => {
-      const movable = clone(defaultMovable);
-      expect(move(0.1)(movable).position).toEqual({
-        x: 10,
-        y: 0,
-      });
+      expect(move(1)(movable([0, 0], [0, 2])).position).toEqual([0, 2]);
     });
     it("move bottom", () => {
-      const movable = clone(defaultMovable);
-      movable.velocity.y = 10;
-      expect(move(0.1)(movable).position).toEqual({
-        x: 10,
-        y: 1,
-      });
+      expect(move(1)(movable([0, 0], [2, 0])).position).toEqual([2, 0]);
     });
   });
 
   describe("distance", () => {
     it("should calculate distance", () => {
-      expect(
-        distance({ position: { x: 0, y: 0 } })({ position: { x: 100, y: 0 } })
-      ).toEqual(100);
+      expect(distance(positionable(0, 0), positionable(0, 100))).toEqual(100);
+    });
+  });
+
+  describe("replaceOnSurface", () => {
+    it("should calculate distance", () => {
+      const fixed = hitable(0, 0, 10);
+      const toMove = hitable(0, 5, 5);
+      const replaced = replaceOnSurface(fixed, toMove);
+      expect(replaced.position).toEqual([0, 15]);
     });
   });
 });
