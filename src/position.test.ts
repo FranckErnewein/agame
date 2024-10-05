@@ -1,30 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { Vec2 } from "./vector";
-import {
-  Movable,
-  Positionable,
-  Hitable,
-  distance,
-  move,
-  replaceOnSurface,
-} from "./position";
-
-const movable = (
-  position: Vec2 = [0, 0],
-  velocity: Vec2 = [0, 0]
-): Movable => ({
-  velocity,
-  position,
-});
-
-const positionable = (x = 0, y = 0): Positionable => ({
-  position: [x, y],
-});
-
-const hitable = (x = 0, y = 0, radius = 1): Hitable => ({
-  position: [x, y],
-  radius,
-});
+import { distance, move, replaceOnSurface } from "./position";
+import { movable, positionable, hitable } from "./testUtils";
 
 describe("position", () => {
   describe("move", () => {

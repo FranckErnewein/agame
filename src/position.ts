@@ -52,15 +52,21 @@ export const bounce =
     return setVelocity(sym(groundAxe, sym(bodiesAxe, m.velocity)))(m);
   };
 
-export const replaceOnSurface = curry(
-  (fixed: Hitable) =>
-    (h: Hitable): Hitable => {
-      return flow([
-        getPosition,
-        sub(fixed.position),
-        scale((h.radius + fixed.radius) / fixed.radius),
-        add(fixed.position),
-        flip(setPosition)(h),
-      ])(h);
-    }
-);
+const log = <T>(x: T): T => {
+  console.log(x);
+  return x;
+};
+
+export const replaceOnSurface = curry((fixed: Hitable, h: Hitable): Hitable => {
+  return flow([
+    getPosition,
+    log,
+    sub(fixed.position),
+    log,
+    scale((h.radius + fixed.radius) / fixed.radius),
+    log,
+    add(fixed.position),
+    log,
+    flip(setPosition)(h),
+  ])(h);
+});

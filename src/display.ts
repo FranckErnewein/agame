@@ -1,6 +1,6 @@
 import { compose } from "lodash/fp";
 import { UA } from "./physics";
-import { getAngle, map } from "./vector";
+import { angle, map } from "./vector";
 import { getPosition, Positionable, Movable } from "./position";
 
 export const pxPerUA = 500;
@@ -12,4 +12,4 @@ export const toPixiPosition = (p: Positionable): [number, number] => p.position;
 
 export const pxPosition = compose(map(metersToPx), getPosition);
 
-export const orientation = (m: Movable): number => getAngle(m.velocity);
+export const orientation = (m: Movable): number => angle(m.velocity);
