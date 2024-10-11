@@ -1,4 +1,4 @@
-import { minBy, compact, map, filter, flatMap, compose } from "lodash/fp";
+import { minBy, compact, map, filter, flatMap, compose, flow } from "lodash/fp";
 import { G, UA } from "./physics";
 import { generateGame } from "./generator";
 import { add, sub, scale } from "./vector";
@@ -12,6 +12,10 @@ import {
   move,
   hit,
   bounce,
+  replaceOnSurface,
+  getVelocity,
+  setVelocityOf,
+  getPosition,
 } from "./position";
 
 export type Ship = Movable &
@@ -66,15 +70,15 @@ export const nextPosition =
 export const deflectShipVelocity =
   (second: number) =>
   (ship: Ship, planet: Planet): Ship => {
-    const d = distance(planet)(ship); //m
+    const d = distance(planet, ship); //m
     const f = (G * planet.currentMass * 1) / (d * d); //N = (kg m2 s-2)
-    const velocity = compose(
-      add(ship.velocity),
+    return flow([
+      getPosition,
+      sub(getPosition(planet)),
       scale((f / d) * second),
-      sub(planet.position)
-    )(ship.position);
-
-    return { ...ship, velocity };
+      add(getVelocity(ship)),
+      setVelocityOf(ship),
+    ])(ship);
   };
 
 export const applyGravity =
@@ -87,7 +91,9 @@ export const bounceOnPlanets =
   (planets: Planet[]) =>
   (ship: Ship): Ship => {
     const planet = planets.find(hit(ship));
-    return planet ? bounce(planet)(ship) : ship;
+    return planet
+      ? flow([replaceOnSurface(planet), bounce(planet)])(ship)
+      : ship;
   };
 
 export const isInWorld = ({ position: [x, y] }: Positionable) => {

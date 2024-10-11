@@ -1,5 +1,5 @@
-import { set, flow, curry, flip } from "lodash/fp";
-import { Vec2, sym, sub, rotate90, add, scale } from "./vector";
+import { set, flow, curry } from "lodash/fp";
+import { Vec2, sym, sub, rotate90, add, scale, revert } from "./vector";
 
 export type Position = Vec2;
 export type Velocity = Vec2;
@@ -18,8 +18,14 @@ export interface Hitable extends Positionable {
 
 export const getPosition = (p: Positionable) => p.position;
 export const setPosition = set("position");
+export const setPositionOf = curry(
+  <P extends Positionable>(o: P, position: Position) => ({ ...o, position })
+);
 export const getVelocity = (p: Movable) => p.velocity;
 export const setVelocity = set("velocity");
+export const setVelocityOf = curry(
+  <M extends Movable>(o: M, velocity: Velocity) => ({ ...o, velocity })
+);
 
 export const distance = curry(
   (
@@ -38,35 +44,21 @@ export const hit =
   (h2: Hitable): boolean =>
     distance(h1)(h2) < h1.radius + h2.radius;
 
-export const bounce =
-  (p: Positionable) =>
-  <M extends Movable>(m: M): M => {
-    const bodiesAxe = sub(p.position, m.position);
-    const groundAxe = rotate90(bodiesAxe);
-    // return flow([
-    // getVelocity,
-    // sym(groundAxe),
-    // sym(bodiesAxe),
-    // flip(setVelocity)(m),
-    // ])(m);
-    return setVelocity(sym(groundAxe, sym(bodiesAxe, m.velocity)))(m);
-  };
-
-const log = <T>(x: T): T => {
-  console.log(x);
-  return x;
-};
+export const bounce = curry(<M extends Movable>(p: Positionable, m: M): M => {
+  const bodiesAxe = sub(p.position, m.position);
+  const groundAxe = rotate90(bodiesAxe);
+  return flow([getVelocity, sym(groundAxe), sym(bodiesAxe), setVelocityOf(m)])(
+    m
+  );
+});
 
 export const replaceOnSurface = curry((fixed: Hitable, h: Hitable): Hitable => {
   return flow([
     getPosition,
-    log,
-    sub(getPosition(h)),
-    log,
+    sub(getPosition(fixed)),
+    revert,
     scale((h.radius + fixed.radius) / fixed.radius),
-    log,
     add(getPosition(fixed)),
-    log,
-    flip(setPosition)(h),
-  ])(fixed);
+    setPositionOf(h),
+  ])(h);
 });

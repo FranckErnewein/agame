@@ -6,7 +6,7 @@ export const add = curry(
 );
 
 export const sub = curry(
-  ([x1, x2]: Vec2, [y1, y2]: Vec2): Vec2 => [x1 - x2, y1 - y2]
+  ([x1, y1]: Vec2, [x2, y2]: Vec2): Vec2 => [x1 - x2, y1 - y2]
 );
 
 export const scale = curry((n: number, [x, y]: Vec2): Vec2 => [x * n, y * n]);
@@ -30,6 +30,7 @@ export const sym = curry(([ax, ay]: Vec2, [x, y]: Vec2): Vec2 => {
 });
 
 export const rotate90 = ([x, y]: Vec2): Vec2 => [x, -y];
+export const revert = ([x, y]: Vec2): Vec2 => [-x, -y];
 
 export const sym2 = curry(
   (axe: Vec2, v: Vec2): Vec2 =>
