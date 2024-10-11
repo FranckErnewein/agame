@@ -1,4 +1,4 @@
-module Main where
+import Vector
 
 main :: IO ()
-main = print "hello"
+main = print (add (1, 1) (3, 5))

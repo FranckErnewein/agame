@@ -1,32 +1,35 @@
 module Vector where
 
-type Vector = (Float, Float)
+type Vec2 = (Float, Float)
 
 data XY = XY {x :: Float, y :: Float}
 
-add :: Vector -> Vector -> Vector
+test :: Int -> Int
+test x = x + x
+
+add :: Vec2 -> Vec2 -> Vec2
 add (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 
-sub :: Vector -> Vector -> Vector
+sub :: Vec2 -> Vec2 -> Vec2
 sub (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
 
-scale :: Float -> Vector -> Vector
+scale :: Float -> Vec2 -> Vec2
 scale n (x, y) = (x * n, y * n)
 
-scalar :: Vector -> Vector -> Float
+scalar :: Vec2 -> Vec2 -> Float
 scalar (x1, y1) (x2, y2) = x1 * x2 + y1 * y2
 
-rotate90 :: Vector -> Vector
+rotate90 :: Vec2 -> Vec2
 rotate90 (x, y) = (x, -y)
 
-sym :: Vector -> Vector -> Vector
+sym :: Vec2 -> Vec2 -> Vec2
 sym axe v = sub (scale (2 * (scalar axe v / scalar axe axe)) axe) v
 
-toXY :: Vector -> XY
+toXY :: Vec2 -> XY
 toXY (x, y) = XY {x = x, y = y}
 
-angle :: Vector -> Float
+angle :: Vec2 -> Float
 angle (x, y) = atan2 x y
 
-magnitude :: Vector -> Float
+magnitude :: Vec2 -> Float
 magnitude (x, y) = sqrt (x ^ 2 + y ^ 2)

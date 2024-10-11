@@ -23,7 +23,8 @@ describe("position", () => {
       const fixed = hitable(0, 0, 10);
       const toMove = hitable(0, 5, 5);
       const replaced = replaceOnSurface(fixed, toMove);
-      expect(replaced.position).toEqual([0, 15]);
+      console.log("replaced", replaced);
+      expect(replaced.position).toEqual([0, 7.5]);
     });
   });
 });

@@ -61,12 +61,12 @@ export const replaceOnSurface = curry((fixed: Hitable, h: Hitable): Hitable => {
   return flow([
     getPosition,
     log,
-    sub(fixed.position),
+    sub(getPosition(h)),
     log,
     scale((h.radius + fixed.radius) / fixed.radius),
     log,
-    add(fixed.position),
+    add(getPosition(fixed)),
     log,
     flip(setPosition)(h),
-  ])(h);
+  ])(fixed);
 });
