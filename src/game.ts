@@ -52,7 +52,6 @@ export const timer = Math.round(1000 / 24);
 export const MapSizeX = 2 * UA;
 export const MapSizeY = UA;
 export const week = 60 * 60 * 24 * 7;
-export const planetInfluence = 0.001 * UA;
 export const planetMinimalDistance = 0.003 * UA;
 export const shipMass = 3e23;
 
@@ -92,7 +91,7 @@ export const bounceOnPlanets =
   (ship: Ship): Ship => {
     const planet = planets.find(hit(ship));
     return planet
-      ? flow([replaceOnSurface(planet), bounce(planet)])(ship)
+      ? flow([bounce(planet), replaceOnSurface(planet)])(ship)
       : ship;
   };
 
@@ -122,33 +121,14 @@ export const iterateShipsPair = (ships: Ship[]) =>
 export const gameEventLoop =
   (timer: number) =>
   (game: Game): Game => {
-    // const { planets, players } = game;
-    // const clusters = new Map<Planet, Ship[]>();
-    // planets.forEach((p) => clusters.set(p, []));
-
-    // players.forEach((player) =>
-    // player.ships.forEach((ship) => {
-    // const closerPlanet = findCloserPlanet(ship)(planets);
-    // if (closerPlanet) clusters.get(closerPlanet)?.push(ship);
-    // })
-    // );
-
-    // clusters.forEach((ships, planet) => {
-    // ships.forEach((ship) => {
-    // if (hit(ship)(planet)) {
-    // ship.velocity = scale(-1)(ship.velocity);
-    // }
-    // });
-    // });
-
     return {
       ...game,
       time: game.time + timer,
       players: map((player: Player) => ({
         ...player,
         ships: compose(
-          map(applyGravity(timer)(game.planets)),
           map(bounceOnPlanets(game.planets)),
+          map(applyGravity(timer)(game.planets)),
           map(move(timer)),
           filter(isInWorld)
         )(player.ships),

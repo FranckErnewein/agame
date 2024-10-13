@@ -1,7 +1,7 @@
 import { useState, FC, Dispatch } from "react";
 import { Sprite, Container } from "@pixi/react";
 
-import { Planet, GameAction, Game, planetInfluence } from "../game";
+import { Planet, GameAction, Game } from "../game";
 import { add, scale, map } from "../vector";
 import { Position } from "../position";
 import { PlayerUI, PlayerUIAction } from "../playerUI";
@@ -31,14 +31,13 @@ const PlanetComponent: FC<PlanetComponentProps> = ({
   const size = metersToPx(planet.radius * 2);
   const selected = planet === ui.planetSelected;
 
-  const x = metersToPx(cursorPosition[0]);
-  const y = metersToPx(cursorPosition[1]);
+  // const [x, y] = toPx(cursorPosition);
 
   return (
     <Container
       eventMode="static"
       onmousemove={(e) => {
-        setPosition([e.screen.x - x, e.screen.y - y]);
+        setPosition([e.screen.x, e.screen.y]);
       }}
       onclick={
         !selected
@@ -58,14 +57,15 @@ const PlanetComponent: FC<PlanetComponentProps> = ({
       alpha={selected ? 1 : 0.5}
       position={pxPosition(planet)}
     >
+      <Circle radius={size / 2} alpha={1} />
       <Sprite width={size} height={size} anchor={0.5} image="/planet.png" />
       {selected && (
         <Container alpha={0.3}>
           <Line to={cursorPosition} />
-          <ShipComponent ship={createShip(map(pxToMeter)(cursorPosition))} />
+          <ShipComponent ship={createShip(map(pxToMeter, cursorPosition))} />
         </Container>
       )}
-      {selected && <Circle radius={planetInfluence} />}
+      {selected && <Circle radius={size} color={0xfffb64} />}
     </Container>
   );
 };

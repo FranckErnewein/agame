@@ -46,8 +46,7 @@ export const hit =
 
 export const bounce = curry(<M extends Movable>(p: Positionable, m: M): M => {
   const bodiesAxe = sub(p.position, m.position);
-  const groundAxe = rotate90(bodiesAxe);
-  return flow([getVelocity, sym(groundAxe), sym(bodiesAxe), setVelocityOf(m)])(
+  return flow([getVelocity, sym(bodiesAxe), scale(-3 / 4), setVelocityOf(m)])(
     m
   );
 });
@@ -57,7 +56,8 @@ export const replaceOnSurface = curry((fixed: Hitable, h: Hitable): Hitable => {
     getPosition,
     sub(getPosition(fixed)),
     revert,
-    scale((h.radius + fixed.radius) / fixed.radius),
+    scale(1 / distance(fixed, h)),
+    scale(h.radius + fixed.radius),
     add(getPosition(fixed)),
     setPositionOf(h),
   ])(h);

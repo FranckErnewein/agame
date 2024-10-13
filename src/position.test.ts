@@ -13,17 +13,41 @@ describe("position", () => {
   });
 
   describe("distance", () => {
-    it("should calculate distance", () => {
+    it("should calculate distance on X", () => {
       expect(distance(positionable(0, 0), positionable(0, 100))).toEqual(100);
+    });
+    it("should calculate distance on Y", () => {
+      expect(distance(positionable(0, 0), positionable(100, 0))).toEqual(100);
     });
   });
 
   describe("replaceOnSurface", () => {
-    it("should calculate distance", () => {
-      const fixed = hitable(0, 0, 10);
-      const toMove = hitable(0, 5, 5);
-      const replaced = replaceOnSurface(fixed, toMove);
-      expect(replaced.position).toEqual([0, 7.5]);
+    it("should replace on Y", () => {
+      const planet = hitable(0, 0, 10);
+      let ship = hitable(0, 5, 5);
+      ship = replaceOnSurface(planet, ship);
+      expect(ship.position).toEqual([0, 15]);
+      expect(distance(planet, ship)).toEqual(15);
+    });
+    it("should replace on X", () => {
+      const planet = hitable(0, 0, 10);
+      let ship = hitable(5, 0, 5);
+      ship = replaceOnSurface(planet, ship);
+      expect(ship.position).toEqual([15, 0]);
+      expect(distance(planet, ship)).toEqual(15);
+    });
+    it("should replace on X with offset", () => {
+      const planet = hitable(10, 10, 10);
+      let ship = hitable(15, 10, 5);
+      ship = replaceOnSurface(planet, ship);
+      expect(ship.position).toEqual([25, 10]);
+      expect(distance(planet, ship)).toEqual(15);
+    });
+    it("should replace on X and Y", () => {
+      const planet = hitable(0, 0, 10);
+      let ship = hitable(5, 5, 5);
+      ship = replaceOnSurface(planet, ship);
+      expect(distance(planet, ship)).toBeCloseTo(15, 1);
     });
   });
 });
