@@ -1,7 +1,16 @@
-import { minBy, compact, map, filter, flatMap, compose, flow } from "lodash/fp";
+import {
+  minBy,
+  compact,
+  map,
+  filter,
+  flatMap,
+  compose,
+  flow,
+  curry,
+} from "lodash/fp";
 import { G, UA } from "./physics";
 import { generateGame } from "./generator";
-import { add, sub, scale } from "./vector";
+import { add, sub, scale, magnitude } from "./vector";
 import {
   Position,
   Positionable,
@@ -21,6 +30,7 @@ import {
 export type Ship = Movable &
   Hitable & {
     orbit: Planet | null;
+    stuckOn: Planet | null;
   };
 
 export interface Player {
@@ -51,7 +61,6 @@ export interface Game {
 export const timer = Math.round(1000 / 24);
 export const MapSizeX = 2 * UA;
 export const MapSizeY = UA;
-export const week = 60 * 60 * 24 * 7;
 export const planetMinimalDistance = 0.003 * UA;
 export const shipMass = 3e23;
 
@@ -86,12 +95,19 @@ export const applyGravity =
   (ship: Ship): Ship =>
     planets.reduce(deflectShipVelocity(second), ship);
 
+export const stick =
+  (planet: Planet) =>
+  (ship: Ship): Ship =>
+    magnitude(ship.velocity) < 100
+      ? { ...ship, velocity: [0, 0], stuckOn: planet }
+      : ship;
+
 export const bounceOnPlanets =
   (planets: Planet[]) =>
   (ship: Ship): Ship => {
     const planet = planets.find(hit(ship));
     return planet
-      ? flow([bounce(planet), replaceOnSurface(planet)])(ship)
+      ? flow([bounce(planet), replaceOnSurface(planet), stick(planet)])(ship)
       : ship;
   };
 
@@ -149,6 +165,25 @@ export function gameReducer(game: Game, action: GameAction): Game {
             : player;
         }),
       };
+    case "MOVE_SHIP":
+      return {
+        ...game,
+        players: game.players.map((player) => {
+          return player === action.player
+            ? {
+                ...player,
+                ships: player.ships.map((ship) => {
+                  return ship === action.ship
+                    ? {
+                        ...ship,
+                        velocity: action.velocity,
+                      }
+                    : ship;
+                }),
+              }
+            : player;
+        }),
+      };
     default:
       return game;
   }
@@ -157,6 +192,7 @@ export function gameReducer(game: Game, action: GameAction): Game {
 export type GameAction =
   | { type: "START" }
   | { type: "TIME_GONE"; time: number }
-  | { type: "SEND_SHIP"; planet: Planet; player: Player; ship: Ship };
+  | { type: "SEND_SHIP"; planet: Planet; player: Player; ship: Ship }
+  | { type: "MOVE_SHIP"; player: Player; ship: Ship; velocity: Velocity };
 
 export const iniatialGameState = generateGame(2);

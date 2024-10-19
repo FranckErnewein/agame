@@ -1,4 +1,5 @@
 import { curry } from "lodash/fp";
+
 export type Vec2 = [number, number];
 
 export const add = curry(

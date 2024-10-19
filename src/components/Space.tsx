@@ -1,6 +1,7 @@
 import { FC, useReducer } from "react";
 import { useTick } from "@pixi/react";
-import { week, gameReducer, iniatialGameState } from "../game";
+import { gameReducer, iniatialGameState } from "../game";
+import { month } from "../time";
 import { playerUIReducer, initialPlayerUIState } from "../playerUI";
 import ShipComponent from "./Ship";
 import PlanetComponent from "./Planet";
@@ -8,7 +9,7 @@ import PlanetComponent from "./Planet";
 const Space: FC = () => {
   const [game, dispatchGame] = useReducer(gameReducer, iniatialGameState);
   const [ui, dispatchUi] = useReducer(playerUIReducer, initialPlayerUIState);
-  useTick(() => dispatchGame({ type: "TIME_GONE", time: week }));
+  useTick(() => dispatchGame({ type: "TIME_GONE", time: month }));
 
   return (
     <>
@@ -19,7 +20,7 @@ const Space: FC = () => {
         />
       ))}
       {game.players[0].ships.map((ship, i) => (
-        <ShipComponent key={i} {...{ ship }} />
+        <ShipComponent key={i} {...{ ship, dispatchGame, game }} />
       ))}
     </>
   );

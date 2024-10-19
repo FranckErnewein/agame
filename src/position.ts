@@ -37,28 +37,39 @@ export const distance = curry(
 export const move =
   (second: number) =>
   <T extends Movable>(m: T): T =>
-    setPosition(add(m.position)(scale(second)(m.velocity)))(m);
+    flow([getVelocity, scale(second), add(getPosition(m)), setPositionOf(m)])(
+      m
+    );
 
-export const hit =
-  (h1: Hitable) =>
-  (h2: Hitable): boolean =>
-    distance(h1)(h2) < h1.radius + h2.radius;
+export const hit = curry(
+  (h1: Hitable, h2: Hitable): boolean =>
+    distance(h1, h2) < h1.radius + h2.radius
+);
 
-export const bounce = curry(<M extends Movable>(p: Positionable, m: M): M => {
-  const bodiesAxe = sub(p.position, m.position);
-  return flow([getVelocity, sym(bodiesAxe), scale(-3 / 4), setVelocityOf(m)])(
-    m
-  );
+export const bounce = curry(
+  <M extends Movable>(p: Positionable, m: M): M =>
+    flow([
+      getVelocity,
+      sym(sub(p.position, m.position)), //symetrie on axe between objects
+      revert,
+      scale(3 / 4),
+      setVelocityOf(m),
+    ])(m)
+);
+
+export const collide = curry((m1: Movable, m2: Movable): [Movable, Movable] => {
+  return [m1, m2];
 });
 
-export const replaceOnSurface = curry((fixed: Hitable, h: Hitable): Hitable => {
-  return flow([
-    getPosition,
-    sub(getPosition(fixed)),
-    revert,
-    scale(1 / distance(fixed, h)),
-    scale(h.radius + fixed.radius),
-    add(getPosition(fixed)),
-    setPositionOf(h),
-  ])(h);
-});
+export const replaceOnSurface = curry(
+  (fixed: Hitable, h: Hitable): Hitable =>
+    flow([
+      getPosition,
+      sub(getPosition(fixed)),
+      revert,
+      scale(1 / distance(fixed, h)),
+      scale(h.radius + fixed.radius),
+      add(getPosition(fixed)),
+      setPositionOf(h),
+    ])(h)
+);
