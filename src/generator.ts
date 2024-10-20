@@ -1,6 +1,6 @@
 import { Vec2 } from "./vector";
-import { times, random } from "lodash/fp";
-import { Position, distance } from "./position";
+import { map, times, random } from "lodash/fp";
+import { Position, distance, replaceOnSurface } from "./position";
 import {
   Player,
   Planet,
@@ -52,6 +52,7 @@ export const createShip = (
   velocity: Vec2 = [0, 0]
 ): Ship => ({
   orbit: null,
+  stuckOn: null,
   radius: massToRadius(shipMass),
   position,
   velocity,
@@ -95,6 +96,7 @@ export function generateRandomGame(playerCount: number): Game {
           {
             radius: massToRadius(shipMass),
             orbit: null,
+            stuckOn: null,
             position: [UA / 2, UA / 2],
             velocity: [400, -100],
           },
@@ -103,6 +105,26 @@ export function generateRandomGame(playerCount: number): Game {
       createPlayer(),
     ],
     planets: generateRandomPlanets(random(2, 5)),
+  };
+}
+
+export function generatePuzzle(): Game {
+  const ships: Ship[] = times(() => createShip(randomPosition()), 5);
+  const planets = map((p: Position) => createPlanet(randomMassForPlanet(), p))([
+    [UA * 0.25, UA * 0.25],
+    [UA * 1.75, UA * 0.25],
+    [UA * 0.25, UA * 0.75],
+    [UA * 1.75, UA * 0.75],
+    [UA, UA * 0.5],
+  ]);
+
+  const startingPlanet = planets[0];
+  return {
+    time: 0,
+    players: [
+      createPlayer({ ships: map(replaceOnSurface(startingPlanet))(ships) }),
+    ],
+    planets,
   };
 }
 

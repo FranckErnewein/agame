@@ -1,15 +1,6 @@
-import {
-  minBy,
-  compact,
-  map,
-  filter,
-  flatMap,
-  compose,
-  flow,
-  curry,
-} from "lodash/fp";
+import { minBy, compact, map, filter, flatMap, compose, flow } from "lodash/fp";
 import { G, UA } from "./physics";
-import { generateGame } from "./generator";
+import * as generator from "./generator";
 import { add, sub, scale, magnitude } from "./vector";
 import {
   Position,
@@ -133,7 +124,6 @@ export const iterateShipsPair = (ships: Ship[]) =>
     )
   )(ships);
 
-// Filtrer les nulls (où ship1 == ship2)
 export const gameEventLoop =
   (timer: number) =>
   (game: Game): Game => {
@@ -195,4 +185,5 @@ export type GameAction =
   | { type: "SEND_SHIP"; planet: Planet; player: Player; ship: Ship }
   | { type: "MOVE_SHIP"; player: Player; ship: Ship; velocity: Velocity };
 
-export const iniatialGameState = generateGame(2);
+// export const iniatialGameState = generator.generateGame(2);
+export const iniatialGameState = generator.generatePuzzle();

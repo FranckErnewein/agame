@@ -62,7 +62,7 @@ export const collide = curry((m1: Movable, m2: Movable): [Movable, Movable] => {
 });
 
 export const replaceOnSurface = curry(
-  (fixed: Hitable, h: Hitable): Hitable =>
+  <H extends Hitable>(fixed: Hitable, h: H): H =>
     flow([
       getPosition,
       sub(getPosition(fixed)),
