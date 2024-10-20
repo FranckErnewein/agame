@@ -106,21 +106,6 @@ export const isInWorld = ({ position: [x, y] }: Positionable) => {
 export const planetRadius = (planet: Planet): number =>
   Math.cbrt((3 * planet.currentMass * 1000000) / (4 * Math.PI));
 
-export const iterateShipsPair = (ships: Ship[]) =>
-  compose(
-    compact,
-    flatMap((ship1: Ship) =>
-      map((ship2: Ship) =>
-        ship1 !== ship2
-          ? {
-              pair: [ship1, ship2],
-              distance: distance(ship1)(ship2),
-            }
-          : null
-      )
-    )
-  )(ships);
-
 export const gameEventLoop =
   (timer: number) =>
   (game: Game): Game => {
