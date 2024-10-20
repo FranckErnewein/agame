@@ -5,7 +5,8 @@ import { FederatedPointerEvent } from "pixi.js";
 
 import { sub, scale, revert, Vec2 } from "../vector";
 import { Ship, GameAction, Game } from "../game";
-import { metersToPx, orientation, pxPosition } from "../display";
+import { PlayerUI } from "../playerUI";
+import { angle } from "../vector";
 
 import Line from "./Line";
 
@@ -13,6 +14,7 @@ export interface ShipComponentProps {
   ship: Ship;
   game?: Game;
   dispatchGame?: Dispatch<GameAction>;
+  ui: PlayerUI;
 }
 
 const pixiEventToVec2 = (e: FederatedPointerEvent) => [e.global.x, e.global.y];
@@ -20,11 +22,13 @@ const pixiEventToVec2 = (e: FederatedPointerEvent) => [e.global.x, e.global.y];
 const ShipComponent: FC<ShipComponentProps> = ({
   ship,
   dispatchGame,
+  ui: { zoom },
   game,
 }) => {
   const [start, setStart] = useState<null | Vec2>(null);
   const [delta, setDelta] = useState<null | Vec2>(null);
-  const size = metersToPx(ship.radius * 2);
+  const project = scale(zoom);
+  const size = ship.radius * 2 * zoom;
   const begin = compose(setStart, pixiEventToVec2);
   const end = () => {
     if (delta && game && dispatchGame)
@@ -41,8 +45,8 @@ const ShipComponent: FC<ShipComponentProps> = ({
     <>
       <Container
         alpha={1}
-        rotation={orientation(ship)}
-        position={pxPosition(ship)}
+        rotation={angle(ship.velocity)}
+        position={project(ship.position)}
         eventMode="static"
         onmousedown={begin}
         onmouseup={end}
@@ -61,7 +65,7 @@ const ShipComponent: FC<ShipComponentProps> = ({
         <Sprite width={size} height={size} anchor={0.5} image="/ship.png" />
       </Container>
       {start && delta && (
-        <Container position={pxPosition(ship)}>
+        <Container position={project(ship.position)}>
           <Line to={delta} alpha={0.6} />
         </Container>
       )}

@@ -1,16 +1,12 @@
 import "pixi.js";
 import { Stage } from "@pixi/react";
-import { MapSizeX, MapSizeY } from "./game";
-import { metersToPx } from "./display";
 import Space from "./components/Space";
+import { useWindowSize } from "@react-hook/window-size";
 
 function App() {
+  const [width, height] = useWindowSize();
   return (
-    <Stage
-      options={{ background: 0x000000 }}
-      width={metersToPx(MapSizeX)}
-      height={metersToPx(MapSizeY)}
-    >
+    <Stage options={{ background: 0x000000 }} width={width} height={height}>
       <Space />
     </Stage>
   );

@@ -20,7 +20,7 @@ const Space: FC = () => {
         />
       ))}
       {game.players[0].ships.map((ship, i) => (
-        <ShipComponent key={i} {...{ ship, dispatchGame, game }} />
+        <ShipComponent key={i} {...{ ui, ship, dispatchGame, game }} />
       ))}
     </>
   );

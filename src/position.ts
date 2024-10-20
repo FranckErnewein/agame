@@ -1,5 +1,5 @@
 import { set, flow, curry } from "lodash/fp";
-import { Vec2, sym, sub, rotate90, add, scale, revert } from "./vector";
+import { Vec2, sym, sub, add, scale, revert } from "./vector";
 
 export type Position = Vec2;
 export type Velocity = Vec2;

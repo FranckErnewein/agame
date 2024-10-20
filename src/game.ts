@@ -1,4 +1,4 @@
-import { minBy, compact, map, filter, flatMap, compose, flow } from "lodash/fp";
+import { minBy, compact, map, flatMap, compose, flow } from "lodash/fp";
 import { G, UA } from "./physics";
 import * as generator from "./generator";
 import { add, sub, scale, magnitude } from "./vector";
@@ -135,8 +135,8 @@ export const gameEventLoop =
         ships: compose(
           map(bounceOnPlanets(game.planets)),
           map(applyGravity(timer)(game.planets)),
-          map(move(timer)),
-          filter(isInWorld)
+          map(move(timer))
+          // filter(isInWorld)
         )(player.ships),
       }))(game.players),
     };
