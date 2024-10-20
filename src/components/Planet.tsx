@@ -3,7 +3,6 @@ import { Sprite, Container } from "@pixi/react";
 
 import { Planet, GameAction, Game } from "../game";
 import { PlayerUI, PlayerUIAction } from "../playerUI";
-import { scale } from "../vector";
 
 export interface PlanetComponentProps {
   planet: Planet;
@@ -13,14 +12,10 @@ export interface PlanetComponentProps {
   dispatchGame: Dispatch<GameAction>;
 }
 
-const PlanetComponent: FC<PlanetComponentProps> = ({
-  planet,
-  ui: { zoom },
-}) => {
-  const project = scale(zoom);
-  const size = planet.radius * 2 * zoom;
+const PlanetComponent: FC<PlanetComponentProps> = ({ planet }) => {
+  const size = planet.radius * 2;
   return (
-    <Container position={project(planet.position)}>
+    <Container position={planet.position}>
       <Sprite
         width={size}
         height={size}

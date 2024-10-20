@@ -41,8 +41,6 @@ export interface Cluster {
   ships: Ship[];
 }
 
-export type Clusters = Map<Planet, Ship[]>;
-
 export interface Game {
   time: number;
   players: Player[];
@@ -52,7 +50,6 @@ export interface Game {
 export const timer = Math.round(1000 / 24);
 export const MapSizeX = 2 * UA;
 export const MapSizeY = UA;
-export const planetMinimalDistance = 0.003 * UA;
 export const shipMass = 3e23;
 
 export const findCloserPlanet =

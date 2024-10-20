@@ -22,13 +22,11 @@ const pixiEventToVec2 = (e: FederatedPointerEvent) => [e.global.x, e.global.y];
 const ShipComponent: FC<ShipComponentProps> = ({
   ship,
   dispatchGame,
-  ui: { zoom },
   game,
 }) => {
   const [start, setStart] = useState<null | Vec2>(null);
   const [delta, setDelta] = useState<null | Vec2>(null);
-  const project = scale(zoom);
-  const size = ship.radius * 2 * zoom;
+  const size = ship.radius * 2;
   const begin = compose(setStart, pixiEventToVec2);
   const end = () => {
     if (delta && game && dispatchGame)
@@ -46,7 +44,7 @@ const ShipComponent: FC<ShipComponentProps> = ({
       <Container
         alpha={1}
         rotation={angle(ship.velocity)}
-        position={project(ship.position)}
+        position={ship.position}
         eventMode="static"
         onmousedown={begin}
         onmouseup={end}
@@ -65,7 +63,7 @@ const ShipComponent: FC<ShipComponentProps> = ({
         <Sprite width={size} height={size} anchor={0.5} image="/ship.png" />
       </Container>
       {start && delta && (
-        <Container position={project(ship.position)}>
+        <Container position={ship.position}>
           <Line to={delta} alpha={0.6} />
         </Container>
       )}

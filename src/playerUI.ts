@@ -1,19 +1,30 @@
-import { Planet } from "./game";
-import { UA } from "./physics";
+import { Planet, MapSizeX } from "./game";
+import { Vec2 } from "./vector";
 
 export interface PlayerUI {
   zoom: number;
   planetSelected: Planet | null;
+  offset: Vec2;
+  viewport: {
+    width: number;
+    height: number;
+  };
 }
 
 export type PlayerUIAction =
   | { type: "SELECT_PLANET"; planet: Planet }
   | { type: "UNSELECT" }
-  | { type: "ZOOM"; meterPerPixel: number };
+  | { type: "ZOOM"; zoom: number }
+  | { type: "RESIZE"; width: number; height: number };
 
 export const initialPlayerUIState: PlayerUI = {
-  zoom: 1 / (UA / 500),
   planetSelected: null,
+  zoom: 1 / (MapSizeX / 1024),
+  offset: [0, 0],
+  viewport: {
+    width: 1024,
+    height: 768,
+  },
 };
 
 export function playerUIReducer(state: PlayerUI, action: PlayerUIAction) {
@@ -31,7 +42,13 @@ export function playerUIReducer(state: PlayerUI, action: PlayerUIAction) {
     case "ZOOM":
       return {
         ...state,
-        zoom: action.meterPerPixel,
+        zoom: action.zoom,
+      };
+    case "RESIZE":
+      return {
+        ...state,
+        zoom: 1 / (MapSizeX / action.width),
+        viewport: { width: action.width, height: action.height },
       };
     default:
       return state;

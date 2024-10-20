@@ -9,9 +9,10 @@ import {
   MapSizeX,
   MapSizeY,
   shipMass,
-  planetMinimalDistance,
 } from "./game";
 import { UA } from "./physics";
+
+export const planetMinimalDistance = 0.003 * UA;
 
 export const createPlayer = (player: Partial<Player> = {}): Player => ({
   planetSelected: null,

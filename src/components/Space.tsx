@@ -1,28 +1,34 @@
-import { FC, useReducer } from "react";
-import { useTick } from "@pixi/react";
-import { gameReducer, iniatialGameState } from "../game";
+import { FC, useReducer, Dispatch } from "react";
+import { useTick, Container } from "@pixi/react";
+import { gameReducer, iniatialGameState, MapSizeX, MapSizeY } from "../game";
 import { month } from "../time";
-import { playerUIReducer, initialPlayerUIState } from "../playerUI";
+import { PlayerUI, PlayerUIAction } from "../playerUI";
 import ShipComponent from "./Ship";
 import PlanetComponent from "./Planet";
 
-const Space: FC = () => {
+interface SpaceComponentProps {
+  ui: PlayerUI;
+  dispatchUi: Dispatch<PlayerUIAction>;
+}
+
+const Space: FC<SpaceComponentProps> = ({ ui, dispatchUi }) => {
   const [game, dispatchGame] = useReducer(gameReducer, iniatialGameState);
-  const [ui, dispatchUi] = useReducer(playerUIReducer, initialPlayerUIState);
   useTick(() => dispatchGame({ type: "TIME_GONE", time: month }));
 
   return (
-    <>
-      {game.planets.map((planet, i) => (
-        <PlanetComponent
-          key={i}
-          {...{ planet, dispatchUi, ui, dispatchGame, game }}
-        />
-      ))}
-      {game.players[0].ships.map((ship, i) => (
-        <ShipComponent key={i} {...{ ui, ship, dispatchGame, game }} />
-      ))}
-    </>
+    <Container scale={ui.zoom}>
+      <Container width={MapSizeX} height={MapSizeY}>
+        {game.planets.map((planet, i) => (
+          <PlanetComponent
+            key={i}
+            {...{ planet, dispatchUi, ui, dispatchGame, game }}
+          />
+        ))}
+        {game.players[0].ships.map((ship, i) => (
+          <ShipComponent key={i} {...{ ui, ship, dispatchGame, game }} />
+        ))}
+      </Container>
+    </Container>
   );
 };
 
