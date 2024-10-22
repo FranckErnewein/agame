@@ -1,5 +1,5 @@
 import { set, flow, curry } from "lodash/fp";
-import { Vec2, sym, sub, add, scale, revert } from "./vector";
+import { normalize, sym, sub, add, scale, revert, Vec2 } from "./vector";
 
 export type Position = Vec2;
 export type Velocity = Vec2;
@@ -15,6 +15,9 @@ export interface Movable extends Positionable {
 export interface Hitable extends Positionable {
   radius: number;
 }
+
+export type Tuple<T> = [T, T];
+export type HitableT = Tuple<Hitable>;
 
 export const getPosition = (p: Positionable) => p.position;
 export const setPosition = set("position");
@@ -47,19 +50,19 @@ export const hit = curry(
 );
 
 export const bounce = curry(
-  <M extends Movable>(p: Positionable, m: M): M =>
+  <M extends Movable>(elasticty: number, p: Positionable, m: M): M =>
     flow([
       getVelocity,
       sym(sub(p.position, m.position)), //symetrie on axe between objects
       revert,
-      scale(3 / 4),
+      scale(elasticty),
       setVelocityOf(m),
     ])(m)
 );
 
-export const collide = curry((m1: Movable, m2: Movable): [Movable, Movable] => {
-  return [m1, m2];
-});
+export const collide = ([h1, h2]: HitableT): HitableT => {
+  return [h1, h2];
+};
 
 export const replaceOnSurface = curry(
   <H extends Hitable>(fixed: Hitable, h: H): H =>
@@ -67,9 +70,24 @@ export const replaceOnSurface = curry(
       getPosition,
       sub(getPosition(fixed)),
       revert,
-      scale(1 / distance(fixed, h)),
+      normalize,
       scale(h.radius + fixed.radius),
       add(getPosition(fixed)),
       setPositionOf(h),
     ])(h)
 );
+
+export const replaceOnCollision = ([h1, h2]: HitableT): HitableT => {
+  const length = (h1.radius + h2.radius - distance(h1, h2)) / 2;
+  const replace = (subject: Hitable, other: Hitable) =>
+    flow([
+      getPosition,
+      sub(getPosition(other)),
+      revert,
+      normalize,
+      scale(length),
+      add(getPosition(subject)),
+      setPositionOf(subject),
+    ])(subject);
+  return [replace(h1, h2), replace(h2, h1)];
+};

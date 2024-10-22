@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { distance, move, replaceOnSurface } from "./position";
+import {
+  distance,
+  move,
+  replaceOnSurface,
+  replaceOnCollision,
+} from "./position";
 import { movable, positionable, hitable } from "./testUtils";
 
 describe("position", () => {
@@ -48,6 +53,31 @@ describe("position", () => {
       let ship = hitable(5, 5, 5);
       ship = replaceOnSurface(planet, ship);
       expect(distance(planet, ship)).toBeCloseTo(15, 1);
+    });
+  });
+  describe("replaceOnCollision", () => {
+    it("should replace both on X", () => {
+      const [h1, h2] = replaceOnCollision([
+        hitable(0, 0, 10),
+        hitable(15, 0, 10),
+      ]);
+      expect(h1.position).toEqual([-2.5, 0]);
+      expect(h2.position).toEqual([17.5, 0]);
+    });
+    it("should replace both on Y", () => {
+      const [h1, h2] = replaceOnCollision([
+        hitable(0, 0, 10),
+        hitable(0, 15, 10),
+      ]);
+      expect(h1.position).toEqual([0, -2.5]);
+      expect(h2.position).toEqual([0, 17.5]);
+    });
+    it("should replace both on X and Y", () => {
+      const [h1, h2] = replaceOnCollision([
+        hitable(0, 0, 10),
+        hitable(15, 15, 10),
+      ]);
+      expect(distance(h1, h2)).toBeCloseTo(20, 1);
     });
   });
 });
