@@ -1,4 +1,4 @@
-import { minBy, compact, map, flatMap, compose, flow } from "lodash/fp";
+import { curry, minBy, map, compose, flow } from "lodash/fp";
 import { G, UA } from "./physics";
 import * as generator from "./generator";
 import { add, sub, scale, magnitude } from "./vector";
@@ -16,6 +16,8 @@ import {
   getVelocity,
   setVelocityOf,
   getPosition,
+  replaceOnCollision,
+  exchangeVelocity,
 } from "./position";
 
 export type Ship = Movable &
@@ -95,9 +97,31 @@ export const bounceOnPlanets =
   (ship: Ship): Ship => {
     const planet = planets.find(hit(ship));
     return planet
-      ? flow([bounce(planet), replaceOnSurface(planet), stick(planet)])(ship)
+      ? flow([bounce(0.45, planet), replaceOnSurface(planet), stick(planet)])(
+          ship
+        )
       : ship;
   };
+
+export const collideShips = curry((s1: Ship, s2: Ship): [Ship, Ship] =>
+  hit(s1, s2)
+    ? flow([replaceOnCollision, exchangeVelocity])([s1, s2])
+    : [s1, s2]
+);
+
+export const iteratePairs = curry(
+  <T>(fn: (item1: T, item2: T) => [T, T], items: T[]): T[] => {
+    const result = [...items];
+    for (let i = 0; i < result.length; i++) {
+      for (let j = i + 1; j < result.length; j++) {
+        const [n1, n2] = fn(result[i], result[j]);
+        result[i] = n1;
+        result[j] = n2;
+      }
+    }
+    return result;
+  }
+);
 
 export const isInWorld = ({ position: [x, y] }: Positionable) => {
   return x > 0 && y > 0 && x < MapSizeX && y < MapSizeY;
@@ -116,6 +140,8 @@ export const gameEventLoop =
         ...player,
         ships: compose(
           map(bounceOnPlanets(game.planets)),
+          iteratePairs(collideShips),
+          // map(bounceBetweenShip(player.ships)),
           map(applyGravity(timer)(game.planets)),
           map(move(timer))
           // filter(isInWorld)

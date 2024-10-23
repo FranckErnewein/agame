@@ -3,10 +3,10 @@ import { compose } from "lodash/fp";
 import { Sprite, Container } from "@pixi/react";
 import { FederatedPointerEvent } from "pixi.js";
 
-import { sub, scale, revert, Vec2 } from "../vector";
+import { year } from "../time";
+import { sub, scale, revert, angle, eq, Vec2 } from "../vector";
 import { Ship, GameAction, Game } from "../game";
 import { PlayerUI } from "../playerUI";
-import { angle } from "../vector";
 
 import Line from "./Line";
 
@@ -23,26 +23,29 @@ const ShipComponent: FC<ShipComponentProps> = ({
   ship,
   dispatchGame,
   game,
+  ui,
 }) => {
   const [start, setStart] = useState<null | Vec2>(null);
   const [delta, setDelta] = useState<null | Vec2>(null);
   const size = ship.radius * 2;
-  const begin = compose(setStart, pixiEventToVec2);
+  const unproject = scale(1 / ui.zoom);
+  const begin = compose(setStart, unproject, pixiEventToVec2);
   const end = () => {
     if (delta && game && dispatchGame)
       dispatchGame({
         type: "MOVE_SHIP",
         player: game.players[0],
         ship: ship,
-        velocity: scale(4, delta),
+        velocity: scale(1 / year, delta),
       });
     setStart(null);
+    setDelta(null);
   };
 
   return (
     <>
       <Container
-        alpha={1}
+        alpha={eq(ship.velocity, [0, 0]) ? 0.5 : 1}
         rotation={angle(ship.velocity)}
         position={ship.position}
         eventMode="static"
@@ -55,6 +58,7 @@ const ShipComponent: FC<ShipComponentProps> = ({
                 setDelta,
                 revert,
                 sub(start),
+                unproject,
                 pixiEventToVec2
               ),
             }

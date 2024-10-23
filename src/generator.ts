@@ -26,7 +26,7 @@ const createDefaultPlayers: (n: number) => Player[] = times(() =>
   createPlayer({})
 );
 
-const randomMassForPlanet = () => random(1e24, 1e26);
+const randomMassForPlanet = () => random(5e24, 5e25);
 
 const randomPosition = (): Position => [
   random(100, MapSizeX - 100),

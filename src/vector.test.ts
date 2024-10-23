@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { add, sub, scalar, sym } from "./vector";
+import { add, sub, scalar, sym, create } from "./vector";
 
 describe("add", () => {
   it("should add", () => {
@@ -28,5 +28,14 @@ describe("sym", () => {
   });
   it("symetry on 45°", () => {
     expect(sym([1, 1], [0, 10])).toEqual([10, 0]);
+  });
+});
+
+describe("create", () => {
+  it("create on X", () => {
+    expect(create(0, 10)).toEqual([10, 0]);
+  });
+  it("create on Y", () => {
+    expect(create(Math.PI / 2, 10)[1]).toBe(10);
   });
 });

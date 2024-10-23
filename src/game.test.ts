@@ -1,5 +1,11 @@
-import { describe, it, expect } from "vitest";
-import { Planet, Ship, findCloserPlanet, deflectShipVelocity } from "./game";
+import { describe, it, expect, vi } from "vitest";
+import {
+  Planet,
+  Ship,
+  findCloserPlanet,
+  deflectShipVelocity,
+  iteratePairs,
+} from "./game";
 import { merge } from "lodash/fp";
 import { movable } from "./testUtils";
 
@@ -11,7 +17,12 @@ const defaultPlanet: Planet = {
   position: [0, 0],
 };
 const createPlanet = merge(defaultPlanet);
-const ship = (): Ship => ({ ...movable(), radius: 10, orbit: null });
+const ship = (): Ship => ({
+  ...movable(),
+  radius: 10,
+  orbit: null,
+  stuckOn: null,
+});
 
 describe("game", () => {
   describe("findCloserPlanet", () => {
@@ -46,6 +57,21 @@ describe("game", () => {
       const s = ship();
       expect(deflectShipVelocity(1)(s, p).velocity[1]).toBeLessThan(0);
       expect(deflectShipVelocity(1)(s, p).velocity[0]).toBe(0);
+    });
+  });
+
+  describe("iteratePairs", () => {
+    it("should be called with all couple of items", () => {
+      const o = { fn: (a: number, b: number) => [a + b, b + a] };
+      const spy = vi.spyOn(o, "fn");
+      iteratePairs(o.fn, [1, 2, 3]);
+      expect(spy.mock.calls).toHaveLength(3);
+    });
+    it("should be called with all couple of items", () => {
+      const o = { fn: (a: number, b: number) => [a + b, b + a] };
+      const spy = vi.spyOn(o, "fn");
+      iteratePairs(o.fn, [1, 2, 3, 4, 5, 6]);
+      expect(spy.mock.calls).toHaveLength(5 + 4 + 3 + 2 + 1);
     });
   });
 });

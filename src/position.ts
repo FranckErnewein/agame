@@ -1,5 +1,14 @@
 import { set, flow, curry } from "lodash/fp";
-import { normalize, sym, sub, add, scale, revert, Vec2 } from "./vector";
+import {
+  normalize,
+  sym,
+  sub,
+  add,
+  scale,
+  revert,
+  magnitude,
+  Vec2,
+} from "./vector";
 
 export type Position = Vec2;
 export type Velocity = Vec2;
@@ -15,9 +24,6 @@ export interface Movable extends Positionable {
 export interface Hitable extends Positionable {
   radius: number;
 }
-
-export type Tuple<T> = [T, T];
-export type HitableT = Tuple<Hitable>;
 
 export const getPosition = (p: Positionable) => p.position;
 export const setPosition = set("position");
@@ -60,10 +66,6 @@ export const bounce = curry(
     ])(m)
 );
 
-export const collide = ([h1, h2]: HitableT): HitableT => {
-  return [h1, h2];
-};
-
 export const replaceOnSurface = curry(
   <H extends Hitable>(fixed: Hitable, h: H): H =>
     flow([
@@ -77,9 +79,12 @@ export const replaceOnSurface = curry(
     ])(h)
 );
 
-export const replaceOnCollision = ([h1, h2]: HitableT): HitableT => {
+export const replaceOnCollision = <T extends Hitable>([h1, h2]: [T, T]): [
+  T,
+  T
+] => {
   const length = (h1.radius + h2.radius - distance(h1, h2)) / 2;
-  const replace = (subject: Hitable, other: Hitable) =>
+  const replace = (subject: T, other: T): T =>
     flow([
       getPosition,
       sub(getPosition(other)),
@@ -88,6 +93,22 @@ export const replaceOnCollision = ([h1, h2]: HitableT): HitableT => {
       scale(length),
       add(getPosition(subject)),
       setPositionOf(subject),
+    ])(subject);
+  return [replace(h1, h2), replace(h2, h1)];
+};
+
+export const exchangeVelocity = <T extends Movable>([h1, h2]: [T, T]): [
+  T,
+  T
+] => {
+  const replace = (subject: T, other: T) =>
+    flow([
+      getPosition,
+      sub(getPosition(other)),
+      normalize,
+      revert,
+      scale(0.75 * magnitude(getVelocity(other))),
+      setVelocityOf(subject),
     ])(subject);
   return [replace(h1, h2), replace(h2, h1)];
 };

@@ -4,8 +4,9 @@ import {
   move,
   replaceOnSurface,
   replaceOnCollision,
+  exchangeVelocity,
 } from "./position";
-import { movable, positionable, hitable } from "./testUtils";
+import { vec0, movable, positionable, hitable, ship } from "./testUtils";
 
 describe("position", () => {
   describe("move", () => {
@@ -55,6 +56,7 @@ describe("position", () => {
       expect(distance(planet, ship)).toBeCloseTo(15, 1);
     });
   });
+
   describe("replaceOnCollision", () => {
     it("should replace both on X", () => {
       const [h1, h2] = replaceOnCollision([
@@ -78,6 +80,16 @@ describe("position", () => {
         hitable(15, 15, 10),
       ]);
       expect(distance(h1, h2)).toBeCloseTo(20, 1);
+    });
+  });
+  describe("exchangeVelocity", () => {
+    it("should transfert velocity on X", () => {
+      const [s1, s2] = exchangeVelocity([
+        ship([0, 0], [0, 0]),
+        ship([-5, 0], [10, 0]),
+      ]);
+      expect(vec0(s1.velocity)).toEqual([7.5, 0]);
+      expect(vec0(s2.velocity)).toEqual([0, 0]);
     });
   });
 });
