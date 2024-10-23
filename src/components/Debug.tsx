@@ -15,8 +15,8 @@ const Debug = () => {
           {game.players[0].ships.map((ship, i) => {
             return (
               <tr key={i}>
-                <td>{ship.position.x}</td>
-                <td>{ship.position.y}</td>
+                <td>{ship.position[0]}</td>
+                <td>{ship.position[1]}</td>
               </tr>
             );
           })}
