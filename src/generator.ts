@@ -110,7 +110,7 @@ export function generateRandomGame(playerCount: number): Game {
 }
 
 export function generatePuzzle(): Game {
-  const ships: Ship[] = times(() => createShip(randomPosition()), 5);
+  const ships: Ship[] = times(() => createShip(randomPosition()), 20);
   const planets = map((p: Position) => createPlanet(randomMassForPlanet(), p))([
     [UA * 0.25, UA * 0.25],
     [UA * 1.75, UA * 0.25],
