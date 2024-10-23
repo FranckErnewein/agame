@@ -4,7 +4,7 @@ import { Sprite, Container } from "@pixi/react";
 import { FederatedPointerEvent } from "pixi.js";
 
 import { year } from "../time";
-import { sub, scale, revert, angle, eq, Vec2 } from "../vector";
+import { sub, scale, revert, eq, Vec2 } from "../vector";
 import { Ship, GameAction, Game } from "../game";
 import { PlayerUI } from "../playerUI";
 
@@ -27,7 +27,7 @@ const ShipComponent: FC<ShipComponentProps> = ({
 }) => {
   const [start, setStart] = useState<null | Vec2>(null);
   const [delta, setDelta] = useState<null | Vec2>(null);
-  const size = ship.radius * 2;
+  const size = ship.radius * 2 * 1.4;
   const unproject = scale(1 / ui.zoom);
   const begin = compose(setStart, unproject, pixiEventToVec2);
   const end = () => {
@@ -45,8 +45,7 @@ const ShipComponent: FC<ShipComponentProps> = ({
   return (
     <>
       <Container
-        alpha={eq(ship.velocity, [0, 0]) ? 0.5 : 1}
-        rotation={angle(ship.velocity)}
+        alpha={eq(ship.velocity, [0, 0]) ? 0.8 : 1}
         position={ship.position}
         eventMode="static"
         onmousedown={begin}
