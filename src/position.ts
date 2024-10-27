@@ -97,18 +97,17 @@ export const replaceOnCollision = <T extends Hitable>([h1, h2]: [T, T]): [
   return [replace(h1, h2), replace(h2, h1)];
 };
 
-export const exchangeVelocity = <T extends Movable>([h1, h2]: [T, T]): [
-  T,
-  T
-] => {
-  const replace = (subject: T, other: T) =>
-    flow([
-      getPosition,
-      sub(getPosition(other)),
-      normalize,
-      revert,
-      scale(0.75 * magnitude(getVelocity(other))),
-      setVelocityOf(subject),
-    ])(subject);
-  return [replace(h1, h2), replace(h2, h1)];
-};
+export const exchangeVelocity =
+  <T extends Movable>(elasticty: number) =>
+  ([h1, h2]: [T, T]): [T, T] => {
+    const replace = (subject: T, other: T) =>
+      flow([
+        getPosition,
+        sub(getPosition(other)),
+        normalize,
+        revert,
+        scale(elasticty * magnitude(getVelocity(other))),
+        setVelocityOf(subject),
+      ])(subject);
+    return [replace(h1, h2), replace(h2, h1)];
+  };

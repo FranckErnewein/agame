@@ -97,15 +97,13 @@ export const bounceOnPlanets =
   (ship: Ship): Ship => {
     const planet = planets.find(hit(ship));
     return planet
-      ? flow([bounce(0.45, planet), replaceOnSurface(planet), stick(planet)])(
-          ship
-        )
+      ? flow([bounce(0.45, planet), replaceOnSurface(planet)])(ship)
       : ship;
   };
 
 export const collideShips = curry((s1: Ship, s2: Ship): [Ship, Ship] =>
   hit(s1, s2)
-    ? flow([replaceOnCollision, exchangeVelocity])([s1, s2])
+    ? flow([replaceOnCollision, exchangeVelocity(0.75)])([s1, s2])
     : [s1, s2]
 );
 

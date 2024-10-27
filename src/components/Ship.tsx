@@ -1,14 +1,13 @@
 import { useState, FC, Dispatch } from "react";
-import { compose } from "lodash/fp";
+import { compose, flow, times } from "lodash/fp";
 import { Sprite, Container } from "@pixi/react";
 import { FederatedPointerEvent } from "pixi.js";
 
-import { year } from "../time";
+import * as time from "../time";
 import { sub, scale, revert, eq, Vec2 } from "../vector";
-import { Ship, GameAction, Game } from "../game";
+import { move } from "../position";
+import { bounceOnPlanets, applyGravity, Ship, GameAction, Game } from "../game";
 import { PlayerUI } from "../playerUI";
-
-import Line from "./Line";
 
 export interface ShipComponentProps {
   ship: Ship;
@@ -27,16 +26,37 @@ const ShipComponent: FC<ShipComponentProps> = ({
 }) => {
   const [start, setStart] = useState<null | Vec2>(null);
   const [delta, setDelta] = useState<null | Vec2>(null);
+
   const size = ship.radius * 2 * 1.4;
+  const velocity = start && delta ? scale(1 / time.year, delta) : null;
+  // const projections: Ship[] = times((x:number) => )(10)
+  const stepTimer = time.month;
+  const nextShip =
+    game && velocity
+      ? (ship: Ship): Ship =>
+          flow([
+            move(stepTimer),
+            applyGravity(stepTimer)(game.planets),
+            bounceOnPlanets(game.planets),
+          ])(ship)
+      : null;
+
+  let sp: Ship | null = null;
+  const projections: Ship[] = [];
+  times((i) => {
+    sp = nextShip && velocity ? nextShip(sp || { ...ship, velocity }) : null;
+    if (sp && i % 5 === 0) projections.push(sp);
+  })(200);
+
   const unproject = scale(1 / ui.zoom);
   const begin = compose(setStart, unproject, pixiEventToVec2);
   const end = () => {
-    if (delta && game && dispatchGame)
+    if (velocity && game && dispatchGame)
       dispatchGame({
         type: "MOVE_SHIP",
         player: game.players[0],
         ship: ship,
-        velocity: scale(1 / year, delta),
+        velocity: velocity,
       });
     setStart(null);
     setDelta(null);
@@ -45,7 +65,7 @@ const ShipComponent: FC<ShipComponentProps> = ({
   return (
     <>
       <Container
-        alpha={eq(ship.velocity, [0, 0]) ? 0.8 : 1}
+        scale={eq(ship.velocity, [0, 0]) ? 0.95 : 1}
         position={ship.position}
         eventMode="static"
         onmousedown={begin}
@@ -65,11 +85,18 @@ const ShipComponent: FC<ShipComponentProps> = ({
       >
         <Sprite width={size} height={size} anchor={0.5} image="/ship.png" />
       </Container>
-      {start && delta && (
-        <Container position={ship.position}>
-          <Line to={delta} alpha={0.6} />
-        </Container>
-      )}
+      {projections.map((projection: Ship, i) => {
+        return (
+          <Container
+            key={i}
+            alpha={0.5 - (i * 0.4) / projections.length}
+            position={projection.position}
+            scale={0.4}
+          >
+            <Sprite width={size} height={size} anchor={0.5} image="/ship.png" />
+          </Container>
+        );
+      })}
     </>
   );
 };
