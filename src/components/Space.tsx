@@ -1,7 +1,8 @@
-import { FC, useReducer, Dispatch } from "react";
+import { FC, Dispatch } from "react";
 import { useTick, Container } from "@pixi/react";
-import { gameReducer, iniatialGameState, MapSizeX, MapSizeY } from "../game";
+
 import * as time from "../time";
+import { Game, GameAction, MapSizeX, MapSizeY } from "../game";
 import { PlayerUI, PlayerUIAction } from "../playerUI";
 import ShipComponent from "./Ship";
 import PlanetComponent from "./Planet";
@@ -9,10 +10,16 @@ import PlanetComponent from "./Planet";
 interface SpaceComponentProps {
   ui: PlayerUI;
   dispatchUi: Dispatch<PlayerUIAction>;
+  game: Game;
+  dispatchGame: Dispatch<GameAction>;
 }
 
-const Space: FC<SpaceComponentProps> = ({ ui, dispatchUi }) => {
-  const [game, dispatchGame] = useReducer(gameReducer, iniatialGameState);
+const Space: FC<SpaceComponentProps> = ({
+  ui,
+  dispatchUi,
+  game,
+  dispatchGame,
+}) => {
   useTick(() => dispatchGame({ type: "TIME_GONE", time: time.month }));
 
   return (
