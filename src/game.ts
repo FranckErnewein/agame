@@ -1,7 +1,7 @@
 import { curry, minBy, map, compose, flow } from "lodash/fp";
 import { G, UA } from "./physics";
 import * as generator from "./generator";
-import { add, sub, scale, magnitude } from "./vector";
+import { add, sub, scale, magnitude, Vec2 } from "./vector";
 import {
   Position,
   Positionable,
@@ -52,6 +52,7 @@ export interface Game {
 export const timer = Math.round(1000 / 24);
 export const MapSizeX = 2 * UA;
 export const MapSizeY = UA;
+export const MapSize: Vec2 = [MapSizeX, MapSizeY];
 export const shipMass = 3e23;
 
 export const findCloserPlanet =

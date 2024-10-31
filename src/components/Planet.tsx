@@ -1,15 +1,10 @@
-import { FC, Dispatch } from "react";
+import { FC } from "react";
 import { Sprite, Container } from "@pixi/react";
 
-import { Planet, GameAction, Game } from "../game";
-import { PlayerUI, PlayerUIAction } from "../playerUI";
+import { Planet } from "../game";
 
 export interface PlanetComponentProps {
   planet: Planet;
-  ui: PlayerUI;
-  game: Game;
-  dispatchUi: Dispatch<PlayerUIAction>;
-  dispatchGame: Dispatch<GameAction>;
 }
 
 const PlanetComponent: FC<PlanetComponentProps> = ({ planet }) => {

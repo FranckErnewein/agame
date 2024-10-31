@@ -7,6 +7,7 @@ import { gameReducer, iniatialGameState, MapSizeX } from "./game";
 import { playerUIReducer, initialPlayerUIState } from "./playerUI";
 import Space from "./components/Space";
 import Minimap from "./components/Minimap";
+import Time from "./components/Time";
 
 function App() {
   const [width, height] = useWindowSize();
@@ -22,19 +23,25 @@ function App() {
   }, [width, height]);
 
   useEffect(() => {
-    const listener = (e: WheelEvent) =>
+    const listener = (e: WheelEvent) => {
+      if (e.deltaX > 0) {
+        e.preventDefault();
+      }
       dispatchUi({
         type: "ZOOM",
         zoom: ui.zoom * (1 + e.deltaY / 200),
       });
-    window.addEventListener("wheel", listener);
+      return false;
+    };
+    window.addEventListener("wheel", listener, { passive: false });
     return () => window.removeEventListener("wheel", listener);
   }, [ui.zoom]);
 
   return (
     <Stage options={{ background: 0x000000 }} width={width} height={height}>
       <Space {...{ game, dispatchGame, ui, dispatchUi }} />
-      <Minimap {...{ game }} />
+      <Minimap ui={ui} stageSize={[width, height]} {...{ game }} />
+      <Time time={game.time} />
     </Stage>
   );
 }
