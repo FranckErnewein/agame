@@ -1,4 +1,4 @@
-import { curry, minBy, map, compose, flow } from "lodash/fp";
+import { curry, minBy, map, filter, compose, flow } from "lodash/fp";
 import { G, UA } from "./physics";
 import * as generator from "./generator";
 import { add, sub, scale, magnitude, Vec2 } from "./vector";
@@ -34,9 +34,16 @@ export interface Player {
 export type Planet = Positionable &
   Hitable & {
     initialMass: number;
-    currentMass: number;
+    mass: number;
     rotation: number;
   };
+
+export type Sun = Positionable &
+  Hitable & {
+    mass: number;
+  };
+
+export type SpaceBody = Sun | Planet;
 
 export interface Cluster {
   planet: Planet;
@@ -47,11 +54,12 @@ export interface Game {
   time: number;
   players: Player[];
   planets: Planet[];
+  suns: Sun[];
 }
 
 export const timer = Math.round(1000 / 24);
 export const MapSizeX = 2 * UA;
-export const MapSizeY = UA;
+export const MapSizeY = 1 * UA;
 export const MapSize: Vec2 = [MapSizeX, MapSizeY];
 export const shipMass = 3e23;
 
@@ -68,9 +76,9 @@ export const nextPosition =
 
 export const deflectShipVelocity =
   (second: number) =>
-  (ship: Ship, planet: Planet): Ship => {
+  (ship: Ship, planet: Planet | Sun): Ship => {
     const d = distance(planet, ship); //m
-    const f = (G * planet.currentMass * 1) / (d * d); //N = (kg m2 s-2)
+    const f = (G * planet.mass * 1) / (d * d); //N = (kg m2 s-2)
     return flow([
       getPosition,
       sub(getPosition(planet)),
@@ -82,7 +90,7 @@ export const deflectShipVelocity =
 
 export const applyGravity =
   (second: number) =>
-  (planets: Planet[]) =>
+  (planets: (Planet | Sun)[]) =>
   (ship: Ship): Ship =>
     planets.reduce(deflectShipVelocity(second), ship);
 
@@ -127,7 +135,13 @@ export const isInWorld = ({ position: [x, y] }: Positionable) => {
 };
 
 export const planetRadius = (planet: Planet): number =>
-  Math.cbrt((3 * planet.currentMass * 1000000) / (4 * Math.PI));
+  Math.cbrt((3 * planet.mass * 1000000) / (4 * Math.PI));
+
+export const dontHitsSuns =
+  (suns: Sun[]) =>
+  (ship: Ship): boolean => {
+    return !suns.find(hit(ship));
+  };
 
 export const gameEventLoop =
   (timer: number) =>
@@ -138,10 +152,11 @@ export const gameEventLoop =
       players: map((player: Player) => ({
         ...player,
         ships: compose(
+          filter(dontHitsSuns(game.suns)),
           map(bounceOnPlanets(game.planets)),
           iteratePairs(collideShips),
           // map(bounceBetweenShip(player.ships)),
-          map(applyGravity(timer)(game.planets)),
+          map(applyGravity(timer)([...game.planets, ...game.suns])),
           map(move(timer))
           // filter(isInWorld)
         )(player.ships),

@@ -5,6 +5,7 @@ import { Game, GameAction, MapSize } from "../game";
 import { PlayerUI, PlayerUIAction } from "../playerUI";
 import ShipComponent from "./Ship";
 import PlanetComponent from "./Planet";
+import SunComponent from "./Sun";
 
 interface SpaceComponentProps {
   ui: PlayerUI;
@@ -32,6 +33,9 @@ const Space: FC<SpaceComponentProps> = ({
         ))}
         {game.players[0].ships.map((ship, i) => (
           <ShipComponent key={i} {...{ ui, ship, dispatchGame, game }} />
+        ))}
+        {game.suns.map((sun, i) => (
+          <SunComponent key={i} {...{ sun }} />
         ))}
       </Container>
     </Container>

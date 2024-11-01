@@ -36,7 +36,7 @@ const ShipComponent: FC<ShipComponentProps> = ({
       ? (ship: Ship): Ship =>
           flow([
             move(stepTimer),
-            applyGravity(stepTimer)(game.planets),
+            applyGravity(stepTimer)([...game.planets, ...game.suns]),
             bounceOnPlanets(game.planets),
           ])(ship)
       : null;

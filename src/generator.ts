@@ -4,6 +4,7 @@ import { Position, distance, replaceOnSurface } from "./position";
 import {
   Player,
   Planet,
+  Sun,
   Ship,
   Game,
   MapSizeX,
@@ -27,6 +28,7 @@ const createDefaultPlayers: (n: number) => Player[] = times(() =>
 );
 
 const randomMassForPlanet = () => random(5e24, 5e25);
+const randomMassForSun = () => random(9e24, 6e25);
 
 const randomPosition = (): Position => [
   random(100, MapSizeX - 100),
@@ -42,10 +44,16 @@ const createPlanet = (
   rotation = 0
 ): Planet => ({
   initialMass: mass,
-  currentMass: mass,
+  mass: mass,
   radius: massToRadius(mass),
   rotation,
   position,
+});
+
+const createSun = (mass: number, position = center()): Sun => ({
+  mass,
+  position,
+  radius: massToRadius(mass),
 });
 
 export const createShip = (
@@ -106,6 +114,7 @@ export function generateRandomGame(playerCount: number): Game {
       createPlayer(),
     ],
     planets: generateRandomPlanets(random(2, 5)),
+    suns: [],
   };
 }
 
@@ -116,8 +125,11 @@ export function generatePuzzle(): Game {
     [UA * 1.75, UA * 0.25],
     [UA * 0.25, UA * 0.75],
     [UA * 1.75, UA * 0.75],
-    [UA, UA * 0.5],
   ]);
+  const suns = [
+    createSun(randomMassForSun(), [UA, UA * 0.5]),
+    createSun(randomMassForSun(), [UA, UA * 0.9]),
+  ];
 
   const startingPlanet = planets[0];
   return {
@@ -126,6 +138,7 @@ export function generatePuzzle(): Game {
       createPlayer({ ships: map(replaceOnSurface(startingPlanet), ships) }),
     ],
     planets,
+    suns,
   };
 }
 
@@ -134,6 +147,7 @@ export function physiqueTest(): Game {
     time: 0,
     players: createDefaultPlayers(2),
     planets: times(() => createPlanet(randomMassForPlanet()))(random(5, 15)),
+    suns: [],
   };
 }
 
