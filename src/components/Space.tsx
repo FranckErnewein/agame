@@ -1,7 +1,6 @@
 import { FC, Dispatch } from "react";
-import { useTick, Container } from "@pixi/react";
+import { Container } from "@pixi/react";
 
-import * as time from "../time";
 import { Game, GameAction, MapSize } from "../game";
 import { PlayerUI, PlayerUIAction } from "../playerUI";
 import ShipComponent from "./Ship";
@@ -21,7 +20,6 @@ const Space: FC<SpaceComponentProps> = ({
   dispatchGame,
 }) => {
   const [width, height] = MapSize;
-  useTick(() => dispatchGame({ type: "TIME_GONE", time: time.month }));
 
   return (
     <Container scale={ui.zoom}>
