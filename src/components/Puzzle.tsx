@@ -1,10 +1,13 @@
 import { useEffect, useReducer, FC } from "react";
+import { flow } from "lodash/fp";
 import "pixi.js";
 import { Stage } from "@pixi/react";
 import { useWindowSize } from "@react-hook/window-size";
+import { useParams } from "react-router-dom";
 
 import * as time from "../time";
-import { gameReducer, iniatialGameState, MapSizeX } from "../game";
+import { gameReducer, emptyGame, MapSizeX } from "../game";
+import { loadPuzzle } from "../puzzle";
 import { playerUIReducer, initialPlayerUIState } from "../playerUI";
 
 import Space from "./Space";
@@ -12,8 +15,9 @@ import Minimap from "./Minimap";
 import Time from "./Time";
 
 const Puzzle: FC = () => {
+  const { puzzleId } = useParams<{ puzzleId: string }>();
   const [width, height] = useWindowSize();
-  const [game, dispatchGame] = useReducer(gameReducer, iniatialGameState);
+  const [game, dispatchGame] = useReducer(gameReducer, emptyGame);
   const [ui, dispatchUi] = useReducer(playerUIReducer, {
     ...initialPlayerUIState,
     viewport: { width, height },
@@ -21,11 +25,17 @@ const Puzzle: FC = () => {
   });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      dispatchGame({ type: "TIME_GONE", time: time.month });
-    }, 16);
-    return () => clearInterval(interval);
-  }, []);
+    if (puzzleId) {
+      let interval: ReturnType<typeof setInterval> | undefined;
+      loadPuzzle(puzzleId).then((game) => {
+        dispatchGame({ type: "START", game });
+        interval = setInterval(() => {
+          dispatchGame({ type: "TIME_GONE", time: time.month });
+        }, 16);
+      });
+      return () => clearInterval(interval);
+    }
+  }, [puzzleId]);
 
   useEffect(() => {
     dispatchUi({ type: "RESIZE", width, height });

@@ -38,7 +38,7 @@ const randomPosition = (): Position => [
 export const massToRadius = (mass: number): number =>
   Math.cbrt((3 * mass * 1000000) / (4 * Math.PI));
 
-const createPlanet = (
+export const createPlanet = (
   mass: number,
   position = center(),
   rotation = 0
@@ -50,7 +50,7 @@ const createPlanet = (
   position,
 });
 
-const createSun = (mass: number, position = center()): Sun => ({
+export const createSun = (mass: number, position = center()): Sun => ({
   mass,
   position,
   radius: massToRadius(mass),

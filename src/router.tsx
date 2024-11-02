@@ -7,7 +7,7 @@ const router = createBrowserRouter([
     element: <Puzzle />,
   },
   {
-    path: "/puzzle/random",
+    path: "/puzzle/:puzzleId",
     element: <Puzzle />,
   },
 ]);

@@ -166,6 +166,8 @@ export const gameEventLoop =
 
 export function gameReducer(game: Game, action: GameAction): Game {
   switch (action.type) {
+    case "START":
+      return action.game;
     case "TIME_GONE":
       return gameEventLoop(action.time)(game);
     case "SEND_SHIP":
@@ -202,10 +204,17 @@ export function gameReducer(game: Game, action: GameAction): Game {
 }
 
 export type GameAction =
-  | { type: "START" }
+  | { type: "START"; game: Game }
   | { type: "TIME_GONE"; time: number }
   | { type: "SEND_SHIP"; planet: Planet; player: Player; ship: Ship }
   | { type: "MOVE_SHIP"; player: Player; ship: Ship; velocity: Velocity };
 
 // export const iniatialGameState = generator.generateGame(2);
 export const iniatialGameState = generator.generatePuzzle();
+
+export const emptyGame: Game = {
+  time: 0,
+  players: [],
+  planets: [],
+  suns: [],
+};
