@@ -22,8 +22,8 @@ function App() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      dispatchGame({ type: "TIME_GONE", time: time.week * 3 });
-    }, 5);
+      dispatchGame({ type: "TIME_GONE", time: time.month });
+    }, 16);
     return () => clearInterval(interval);
   }, []);
 
