@@ -1,5 +1,4 @@
 import { useEffect, useReducer, FC } from "react";
-import { flow } from "lodash/fp";
 import "pixi.js";
 import { Stage } from "@pixi/react";
 import { useWindowSize } from "@react-hook/window-size";
