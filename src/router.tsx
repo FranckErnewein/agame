@@ -11,6 +11,10 @@ const router = createBrowserRouter([
     path: "/puzzle/:puzzleId",
     element: <Puzzle />,
   },
+  {
+    path: "/multi/game/:gameId/:playerId",
+    element: <Puzzle />,
+  },
 ]);
 
 export default router;
