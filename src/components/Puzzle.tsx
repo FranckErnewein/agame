@@ -56,11 +56,7 @@ const Puzzle: FC = () => {
   }, [ui.zoom]);
 
   return (
-    <Stage
-      options={{ background: 0x000000, sharedTicker: true }}
-      width={width}
-      height={height}
-    >
+    <Stage options={{ background: 0x000000 }} width={width} height={height}>
       <Space {...{ game, dispatchGame, ui, dispatchUi }} />
       <Minimap ui={ui} stageSize={[width, height]} {...{ game }} />
       <Time time={game.time} />
