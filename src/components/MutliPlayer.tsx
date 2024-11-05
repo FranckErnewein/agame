@@ -3,10 +3,12 @@ import "pixi.js";
 import { Stage } from "@pixi/react";
 import { useWindowSize } from "@react-hook/window-size";
 import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
+import { PlayerCommand, GameEvent } from "../protocol";
 import { gameReducer, emptyGame, MapSizeX } from "../engine/game";
 import { playerUIReducer, initialPlayerUIState } from "../playerUI";
+import { loadMultiPlayer } from "../mapLoader";
 
 import Space from "./Space";
 import Minimap from "./Minimap";
@@ -26,11 +28,17 @@ const Multiplayer: FC = () => {
   });
 
   useEffect(() => {
-    const socket = io("ws://localhost:3000/");
+    const socket: Socket<PlayerCommand, GameEvent> = io("ws://localhost:3000/");
     socket.connect();
-    socket.on("message", (m) => console.log(m));
-    console.log(socket);
-  }, []);
+    socket.on("action", (m) => console.log(m));
+    loadMultiPlayer("1").then((game) => {
+      socket.emit("action", { type: "SELECT_MAP", game });
+    });
+    return () => {
+      socket.close();
+    };
+  }, [gameId, playerId]);
+
   useEffect(() => {
     dispatchUi({ type: "RESIZE", width, height });
   }, [width, height]);

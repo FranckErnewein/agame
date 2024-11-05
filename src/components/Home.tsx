@@ -13,8 +13,26 @@ const Home: FC = () => {
           </li>
         ))}
       </ul>
+      <hr />
       <h2>Multiplayer</h2>
-      <button>Create a game</button>
+      <h3>Join game n°1</h3>
+      <ul>
+        <li>
+          <Link to="/multi/game/1/1">Player 1</Link>
+        </li>
+        <li>
+          <Link to="/multi/game/1/2">Player 2</Link>
+        </li>
+      </ul>
+      <h3>Join game n°2</h3>
+      <ul>
+        <li>
+          <Link to="/multi/game/2/1">Player 1</Link>
+        </li>
+        <li>
+          <Link to="/multi/game/2/2">Player 2</Link>
+        </li>
+      </ul>
     </div>
   );
 };

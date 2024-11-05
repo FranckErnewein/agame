@@ -1,27 +1,24 @@
 import { createServer } from "http";
-import { clone } from "lodash/fp";
 import express from "express";
 import cors from "cors";
-
 import { Server } from "socket.io";
-import { emptyGame } from "./game";
+
+import { PlayerCommand, GameEvent } from "../protocol";
 
 const port = 3000;
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
+const io = new Server<GameEvent, PlayerCommand>(httpServer, {
   serveClient: false,
   cors: {
     origin: "*",
   },
 });
 
-const game = clone(emptyGame);
-
 app.use(cors());
 
 io.on("connection", (socket) => {
-  socket.send(game);
+  socket.on("action", (cmd) => console.log(cmd));
 });
 
 httpServer.listen(port, () => console.log(`server listen on ${port}`));

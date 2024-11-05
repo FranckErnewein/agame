@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 
 import * as time from "../engine/time";
 import { gameReducer, emptyGame, MapSizeX } from "../engine/game";
-import { loadPuzzle } from "../puzzle";
+import { loadPuzzle } from "../mapLoader";
 import { playerUIReducer, initialPlayerUIState } from "../playerUI";
 
 import Space from "./Space";
@@ -27,7 +27,7 @@ const Puzzle: FC = () => {
     if (puzzleId) {
       let interval: ReturnType<typeof setInterval> | undefined;
       loadPuzzle(puzzleId).then((game) => {
-        dispatchGame({ type: "START", game });
+        dispatchGame({ type: "SELECT_MAP", game });
         interval = setInterval(() => {
           dispatchGame({ type: "TIME_GONE", time: time.month });
         }, 16);

@@ -22,7 +22,7 @@ export const createPlayer = (player: Partial<Player> = {}): Player => ({
   ...player,
 });
 
-const center = (): Position => [MapSizeX / 2, MapSizeY / 2];
+export const center = (): Position => [MapSizeX / 2, MapSizeY / 2];
 
 const createDefaultPlayers: (n: number) => Player[] = times(() =>
   createPlayer({})

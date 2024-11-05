@@ -89,11 +89,10 @@ export const deflectShipVelocity =
     ])(ship);
   };
 
-export const applyGravity =
-  (second: number) =>
-  (planets: (Planet | Sun)[]) =>
-  (ship: Ship): Ship =>
-    planets.reduce(deflectShipVelocity(second), ship);
+export const applyGravity = curry(
+  (second: number, planets: (Planet | Sun)[], ship: Ship): Ship =>
+    planets.reduce(deflectShipVelocity(second), ship)
+);
 
 export const stick =
   (planet: Planet) =>
@@ -138,7 +137,7 @@ export const isInWorld = ({ position: [x, y] }: Positionable) => {
 export const planetRadius = (planet: Planet): number =>
   Math.cbrt((3 * planet.mass * 1000000) / (4 * Math.PI));
 
-export const dontHitsSuns =
+export const doesntHitAnySun =
   (suns: Sun[]) =>
   (ship: Ship): boolean => {
     return !suns.find(hit(ship));
@@ -153,11 +152,11 @@ export const gameEventLoop =
       players: map((player: Player) => ({
         ...player,
         ships: compose(
-          filter(dontHitsSuns(game.suns)),
+          filter(doesntHitAnySun(game.suns)),
           map(bounceOnPlanets(game.planets)),
           iteratePairs(collideShips),
           // map(bounceBetweenShip(player.ships)),
-          map(applyGravity(timer)([...game.planets, ...game.suns])),
+          map(applyGravity(timer, [...game.planets, ...game.suns])),
           map(move(timer))
           // filter(isInWorld)
         )(player.ships),
@@ -167,7 +166,7 @@ export const gameEventLoop =
 
 export function gameReducer(game: Game, action: GameAction): Game {
   switch (action.type) {
-    case "START":
+    case "SELECT_MAP":
       return action.game;
     case "TIME_GONE":
       return gameEventLoop(action.time)(game);
@@ -205,7 +204,7 @@ export function gameReducer(game: Game, action: GameAction): Game {
 }
 
 export type GameAction =
-  | { type: "START"; game: Game }
+  | { type: "SELECT_MAP"; game: Game }
   | { type: "READY"; playerId: string }
   | { type: "TIME_GONE"; time: number }
   | { type: "SEND_SHIP"; planet: Planet; player: Player; ship: Ship }
