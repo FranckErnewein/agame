@@ -5,7 +5,7 @@ import { useWindowSize } from "@react-hook/window-size";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 
-import { gameReducer, emptyGame, MapSizeX } from "../game";
+import { gameReducer, emptyGame, MapSizeX } from "../engine/game";
 import { playerUIReducer, initialPlayerUIState } from "../playerUI";
 
 import Space from "./Space";

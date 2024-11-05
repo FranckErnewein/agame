@@ -3,10 +3,16 @@ import { compose, flow, times } from "lodash/fp";
 import { Sprite, Container } from "@pixi/react";
 import { FederatedPointerEvent } from "pixi.js";
 
-import * as time from "../time";
-import { sub, scale, revert, eq, Vec2 } from "../vector";
-import { move } from "../position";
-import { bounceOnPlanets, applyGravity, Ship, GameAction, Game } from "../game";
+import * as time from "../engine/time";
+import { sub, scale, revert, eq, Vec2 } from "../engine/vector";
+import { move } from "../engine/position";
+import {
+  bounceOnPlanets,
+  applyGravity,
+  Ship,
+  GameAction,
+  Game,
+} from "../engine/game";
 import { PlayerUI } from "../playerUI";
 
 export interface ShipComponentProps {

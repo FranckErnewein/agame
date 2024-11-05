@@ -1,10 +1,10 @@
 import { useCallback, useState, FC } from "react";
 import { useWindowSize } from "@react-hook/window-size";
-import { Graphics, Container, Sprite } from "@pixi/react";
+import { Graphics, Container } from "@pixi/react";
 import * as PIXI from "pixi.js";
 
-import { scale, Vec2 } from "../vector";
-import { MapSizeX, MapSizeY, Game } from "../game";
+import { scale, Vec2 } from "../engine/vector";
+import { MapSizeX, MapSizeY, Game } from "../engine/game";
 import { PlayerUI } from "../playerUI";
 
 interface MinimapProps {

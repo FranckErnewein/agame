@@ -2,7 +2,7 @@ import { FC, Dispatch } from "react";
 import { Container, Sprite } from "@pixi/react";
 import { useWindowSize } from "@react-hook/window-size";
 
-import { Game, GameAction, MapSize } from "../game";
+import { Game, GameAction, MapSize } from "../engine/game";
 import { PlayerUI, PlayerUIAction } from "../playerUI";
 import ShipComponent from "./Ship";
 import PlanetComponent from "./Planet";

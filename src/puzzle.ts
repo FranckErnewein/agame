@@ -1,8 +1,13 @@
 import { map } from "lodash/fp";
 
-import { createShip, createSun, createPlanet, createPlayer } from "./generator";
-import { Position } from "./position";
-import { Game } from "./game";
+import {
+  createShip,
+  createSun,
+  createPlanet,
+  createPlayer,
+} from "./engine/generator";
+import { Position } from "./engine/position";
+import { Game } from "./engine/game";
 
 interface JSONShip {
   position: Position;

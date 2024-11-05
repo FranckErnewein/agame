@@ -1,5 +1,5 @@
-import { Planet, MapSizeX } from "./game";
-import { Vec2 } from "./vector";
+import { Planet, MapSizeX } from "./engine/game";
+import { Vec2 } from "./engine/vector";
 
 export interface PlayerUI {
   zoom: number;
