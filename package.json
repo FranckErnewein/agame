@@ -2,10 +2,9 @@
   "name": "matter",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "server": "tsx src/server.ts",
+    "server": "ts-node --project tsconfig.server.json src/server.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
@@ -15,7 +14,9 @@
     "@bjorn3/browser_wasi_shim": "^0.3.0",
     "@pixi/react": "^7.1.2",
     "@react-hook/window-size": "^3.1.1",
+    "cors": "^2.8.5",
     "date-fns": "^4.1.0",
+    "express": "^4.21.1",
     "install": "^0.13.0",
     "lodash": "^4.17.21",
     "npm": "^10.8.2",
@@ -24,10 +25,12 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0",
     "socket.io": "^4.8.1",
-    "styled-components": "^6.1.12",
-    "tsx": "^4.19.2"
+    "socket.io-client": "^4.8.1",
+    "styled-components": "^6.1.12"
   },
   "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.17.7",
     "@types/react": "^18.3.3",
@@ -39,6 +42,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "jsdom": "^24.1.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.2.2",
     "vite": "^5.3.4",
     "vitest": "^2.0.5"

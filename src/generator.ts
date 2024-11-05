@@ -16,6 +16,7 @@ import { UA } from "./physics";
 export const planetMinimalDistance = 0.003 * UA;
 
 export const createPlayer = (player: Partial<Player> = {}): Player => ({
+  ready: false,
   planetSelected: null,
   ships: [],
   ...player,

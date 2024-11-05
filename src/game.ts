@@ -27,6 +27,7 @@ export type Ship = Movable &
   };
 
 export interface Player {
+  ready: boolean;
   ships: Ship[];
   planetSelected: Planet | null;
 }
@@ -205,6 +206,7 @@ export function gameReducer(game: Game, action: GameAction): Game {
 
 export type GameAction =
   | { type: "START"; game: Game }
+  | { type: "READY"; playerId: string }
   | { type: "TIME_GONE"; time: number }
   | { type: "SEND_SHIP"; planet: Planet; player: Player; ship: Ship }
   | { type: "MOVE_SHIP"; player: Player; ship: Ship; velocity: Velocity };
