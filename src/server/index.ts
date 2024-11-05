@@ -18,7 +18,9 @@ const io = new Server<GameEvent, PlayerCommand>(httpServer, {
 app.use(cors());
 
 io.on("connection", (socket) => {
-  socket.on("action", (cmd) => console.log(cmd));
+  socket.on("action", (action) => {
+    io.emit("action", action);
+  });
 });
 
 httpServer.listen(port, () => console.log(`server listen on ${port}`));

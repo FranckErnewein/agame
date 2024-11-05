@@ -2,20 +2,20 @@
   "players": [],
   "planets": [
     {
-      "mass": 1.5501827531449096e25,
-      "position": [37399467675, 37399467675],
-      "startingPointForPlayer": 2
+      "mass": 1.75e25,
+      "position": [37399467675, 37399467675]
     },
     {
-      "mass": 3.050166037641181e25,
+      "mass": 1.7e25,
       "position": [261796273725, 37399467675]
     },
     {
-      "mass": 3.1033344986722754e25,
-      "position": [37399467675, 112198403025]
+      "mass": 3.1e25,
+      "position": [37399467675, 112198403025],
+      "startingPointForPlayer": 2
     },
     {
-      "mass": 2.7063328169793895e25,
+      "mass": 3.1e25,
       "position": [261796273725, 112198403025],
       "startingPointForPlayer": 1
     }

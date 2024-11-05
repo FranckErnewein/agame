@@ -22,7 +22,7 @@ export const createPlayer = (player: Partial<Player> = {}): Player => ({
   ...player,
 });
 
-export const center = (): Position => [MapSizeX / 2, MapSizeY / 2];
+const center = (): Position => [MapSizeX / 2, MapSizeY / 2];
 
 const createDefaultPlayers: (n: number) => Player[] = times(() =>
   createPlayer({})
@@ -31,7 +31,7 @@ const createDefaultPlayers: (n: number) => Player[] = times(() =>
 const randomMassForPlanet = () => random(5e24, 5e25);
 const randomMassForSun = () => random(9e24, 6e25);
 
-const randomPosition = (): Position => [
+export const randomPosition = (): Position => [
   random(100, MapSizeX - 100),
   random(100, MapSizeY - 100),
 ];

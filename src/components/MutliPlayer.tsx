@@ -30,8 +30,12 @@ const Multiplayer: FC = () => {
   useEffect(() => {
     const socket: Socket<PlayerCommand, GameEvent> = io("ws://localhost:3000/");
     socket.connect();
-    socket.on("action", (m) => console.log(m));
+    socket.on("action", (action) => {
+      console.log("receive and dispatch action", action);
+      dispatchGame(action);
+    });
     loadMultiPlayer("1").then((game) => {
+      console.log(game);
       socket.emit("action", { type: "SELECT_MAP", game });
     });
     return () => {

@@ -1,14 +1,13 @@
-import { flow, filter, map, sortBy } from "lodash/fp";
+import { last, zip, noop, flow, filter, map, sortBy, times } from "lodash/fp";
 
 import {
   createShip,
   createSun,
   createPlanet,
   createPlayer,
-  center,
+  randomPosition,
 } from "./engine/generator";
-import { getPosition, Position } from "./engine/position";
-import { add, sub, scale, revert } from "./engine/vector";
+import { replaceOnSurface, Position } from "./engine/position";
 import { Game } from "./engine/game";
 
 interface JSONShip {
@@ -55,27 +54,27 @@ export const createInitialPuzzleGameState = (json: JSONPuzzle): Game => {
 export const createInitialMultiPlayerGameState = (
   json: JSONMultiplayer
 ): Game => {
+  const planets = map(
+    (p: JSONSpaceObject) => createPlanet(p.mass, p.position),
+    json.planets
+  );
+  const players = flow([
+    zip(json.planets),
+    filter(([p]) => !!p.startingPointForPlayer),
+    sortBy(([p]) => p.startingPointForPlayer),
+    map(last),
+    map((planet) =>
+      createPlayer({
+        ships: times(
+          flow([noop, randomPosition, createShip, replaceOnSurface(planet)])
+        )(5),
+      })
+    ),
+  ])(planets);
   return {
     time: 0,
-    players: flow([
-      filter((p: JSONSpaceObject) => !!p.startingPointForPlayer),
-      sortBy(["startingPointForPlayer"]),
-      map((p: JSONSpaceObject) =>
-        flow([
-          getPosition,
-          sub(center()),
-          revert,
-          scale(0.00001),
-          add(getPosition(p)),
-          createShip,
-          (ship) => createPlayer({ ships: [ship] }),
-        ])(p)
-      ),
-    ])(json.planets),
-    planets: map(
-      (p: JSONSpaceObject) => createPlanet(p.mass, p.position),
-      json.planets
-    ),
+    players,
+    planets,
     suns: map((p: JSONSpaceObject) => createSun(p.mass, p.position), json.suns),
   };
 };
