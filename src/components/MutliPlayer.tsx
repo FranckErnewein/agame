@@ -2,7 +2,6 @@ import { useEffect, useReducer, FC } from "react";
 import "pixi.js";
 import { Stage } from "@pixi/react";
 import { useWindowSize } from "@react-hook/window-size";
-import { useParams } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
 
 import { PlayerCommand, GameEvent } from "../protocol";
@@ -10,15 +9,13 @@ import { gameReducer, emptyGame, MapSizeX } from "../engine/game";
 import { playerUIReducer, initialPlayerUIState } from "../playerUI";
 import { loadMultiPlayer } from "../mapLoader";
 
+import { useGameParams } from "./hooks";
 import Space from "./Space";
 import Minimap from "./Minimap";
 import Time from "./Time";
 
 const Multiplayer: FC = () => {
-  const { gameId, playerId } = useParams<{
-    gameId: string;
-    playerId: string;
-  }>();
+  const { gameId, playerId } = useGameParams();
   const [width, height] = useWindowSize();
   const [game, dispatchGame] = useReducer(gameReducer, emptyGame);
   const [ui, dispatchUi] = useReducer(playerUIReducer, {
