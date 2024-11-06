@@ -1,28 +1,21 @@
 import { describe, it, expect, vi } from "vitest";
+import { merge } from "lodash/fp";
 import {
   Planet,
-  Ship,
   findCloserPlanet,
   deflectShipVelocity,
   iteratePairs,
 } from "./game";
-import { merge } from "lodash/fp";
-import { movable } from "./testUtils";
+import { createShip } from "./generator";
 
 const defaultPlanet: Planet = {
-  currentMass: 100,
+  mass: 100,
   initialMass: 100,
   rotation: 0,
   radius: 10,
   position: [0, 0],
 };
 const createPlanet = merge(defaultPlanet);
-const ship = (): Ship => ({
-  ...movable(),
-  radius: 10,
-  orbit: null,
-  stuckOn: null,
-});
 
 describe("game", () => {
   describe("findCloserPlanet", () => {
@@ -36,25 +29,32 @@ describe("game", () => {
   describe("deflectShipVelocity", () => {
     it("should deflect velocity on right only", () => {
       const p = createPlanet({ position: [100, 0] });
-      const s = ship();
-      expect(deflectShipVelocity(1)(s, p).velocity[0]).toBeGreaterThan(0);
-      expect(deflectShipVelocity(1)(s, p).velocity[1]).toBe(0);
+      const s = createShip();
+      const ship = deflectShipVelocity(1)(s, p);
+      const {
+        velocity: [vx, vy],
+      } = ship;
+      expect(vx).toBeGreaterThan(0);
+      expect(vy).toBe(0);
     });
     it("should deflect velocity on left only", () => {
       const p = createPlanet({ position: [-100, 0] });
-      const s = ship();
+      const s = createShip();
       expect(deflectShipVelocity(1)(s, p).velocity[0]).toBeLessThan(0);
       expect(deflectShipVelocity(1)(s, p).velocity[1]).toBe(0);
     });
     it("should deflect velocity on bottom only", () => {
       const p = createPlanet({ position: [0, 100] });
-      const s = ship();
-      expect(deflectShipVelocity(1)(s, p).velocity[1]).toBeGreaterThan(0);
-      expect(deflectShipVelocity(1)(s, p).velocity[0]).toBe(0);
+      const s = createShip();
+      const {
+        velocity: [vx, vy],
+      } = deflectShipVelocity(1)(s, p);
+      expect(vx).toBe(0);
+      expect(vy).toBeGreaterThan(0);
     });
     it("should deflect velocity on top only", () => {
       const p = createPlanet({ position: [0, -100] });
-      const s = ship();
+      const s = createShip();
       expect(deflectShipVelocity(1)(s, p).velocity[1]).toBeLessThan(0);
       expect(deflectShipVelocity(1)(s, p).velocity[0]).toBe(0);
     });

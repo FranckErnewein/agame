@@ -1,5 +1,6 @@
+import { toString, map, times, random } from "lodash/fp";
+
 import { Vec2 } from "./vector";
-import { map, times, random } from "lodash/fp";
 import { Position, distance, replaceOnSurface } from "./position";
 import {
   Player,
@@ -15,18 +16,17 @@ import { UA } from "./physics";
 
 export const planetMinimalDistance = 0.003 * UA;
 
-export const createPlayer = (player: Partial<Player> = {}): Player => ({
+export const defaultPlayer = {
+  id: "1",
   ready: false,
-  planetSelected: null,
-  ships: [],
+};
+export const createPlayer = (player?: Partial<Player>): Player => ({
+  ...defaultPlayer,
   ...player,
 });
 
 const center = (): Position => [MapSizeX / 2, MapSizeY / 2];
-
-const createDefaultPlayers: (n: number) => Player[] = times(() =>
-  createPlayer({})
-);
+const zeroZero = (): Vec2 => [0, 0];
 
 const randomMassForPlanet = () => random(5e24, 5e25);
 const randomMassForSun = () => random(9e24, 6e25);
@@ -39,33 +39,39 @@ export const randomPosition = (): Position => [
 export const massToRadius = (mass: number): number =>
   Math.cbrt((3 * mass * 1000000) / (4 * Math.PI));
 
-export const createPlanet = (
-  mass: number,
-  position = center(),
-  rotation = 0
-): Planet => ({
-  initialMass: mass,
-  mass: mass,
-  radius: massToRadius(mass),
-  rotation,
-  position,
+export const defaultPlanet = (): Planet => ({
+  mass: 2e25,
+  initialMass: 2e25,
+  position: center(),
+  rotation: 0,
+  radius: massToRadius(2e25),
+});
+export const createPlanet = (planet: Partial<Planet>): Planet => ({
+  ...defaultPlanet(),
+  ...planet,
 });
 
-export const createSun = (mass: number, position = center()): Sun => ({
-  mass,
-  position,
-  radius: massToRadius(mass),
+export const defaultSun = (): Sun => ({
+  position: center(),
+  mass: 4e25,
+  radius: massToRadius(4e25),
+});
+export const createSun = (sun: Partial<Sun>): Sun => ({
+  ...defaultSun(),
+  ...sun,
 });
 
-export const createShip = (
-  position = center(),
-  velocity: Vec2 = [0, 0]
-): Ship => ({
-  orbit: null,
+const defaultShip = (): Ship => ({
+  player: "1",
+  position: zeroZero(),
   stuckOn: null,
   radius: massToRadius(shipMass),
-  position,
-  velocity,
+  velocity: zeroZero(),
+  orbit: null,
+});
+export const createShip = (ship: Partial<Ship> = {}): Ship => ({
+  ...defaultShip(),
+  ...ship,
 });
 
 const until =
@@ -77,15 +83,15 @@ const until =
   };
 
 const createRandomPlanet = (exclude: Planet[] = []): Planet =>
-  createPlanet(
-    randomMassForPlanet(),
-    until(
+  createPlanet({
+    mass: randomMassForPlanet(),
+    position: until(
       (p: Position) =>
         !exclude.find(
           (planet) => distance({ position: p })(planet) < planetMinimalDistance
         )
-    )(randomPosition)
-  );
+    )(randomPosition),
+  });
 
 export const generateRandomPlanets = (count: number): Planet[] => {
   const planets: Planet[] = [];
@@ -100,19 +106,16 @@ export function generateRandomGame(playerCount: number): Game {
 
   return {
     time: 0,
-    players: [
-      createPlayer({
-        ships: [
-          {
-            radius: massToRadius(shipMass),
-            orbit: null,
-            stuckOn: null,
-            position: [UA / 2, UA / 2],
-            velocity: [400, -100],
-          },
-        ],
-      }),
-      createPlayer(),
+    players: [createPlayer({ id: "1" }), createPlayer({ id: "2" })],
+    ships: [
+      {
+        player: "1",
+        radius: massToRadius(shipMass),
+        orbit: null,
+        stuckOn: null,
+        position: [UA / 2, UA / 2],
+        velocity: [400, -100],
+      },
     ],
     planets: generateRandomPlanets(random(2, 5)),
     suns: [],
@@ -120,35 +123,27 @@ export function generateRandomGame(playerCount: number): Game {
 }
 
 export function generatePuzzle(): Game {
-  const ships: Ship[] = times(() => createShip(randomPosition()), 7);
-  const planets = map((p: Position) => createPlanet(randomMassForPlanet(), p))([
+  const ships: Ship[] = times((id) => createShip({ player: toString(id) }))(7);
+  const planets = map((p: Position) =>
+    createPlanet({ mass: randomMassForPlanet(), ...p })
+  )([
     [UA * 0.25, UA * 0.25],
     [UA * 1.75, UA * 0.25],
     [UA * 0.25, UA * 0.75],
     [UA * 1.75, UA * 0.75],
   ]);
   const suns = [
-    createSun(randomMassForSun(), [UA, UA * 0.5]),
-    createSun(randomMassForSun(), [UA, UA * 0.9]),
+    createSun({ mass: randomMassForSun(), position: [UA, UA * 0.5] }),
+    createSun({ mass: randomMassForSun(), position: [UA, UA * 0.9] }),
   ];
 
   const startingPlanet = planets[0];
   return {
     time: 0,
-    players: [
-      createPlayer({ ships: map(replaceOnSurface(startingPlanet), ships) }),
-    ],
+    players: [createPlayer({ id: "1" })],
+    ships: map(replaceOnSurface(startingPlanet), ships),
     planets,
     suns,
-  };
-}
-
-export function physiqueTest(): Game {
-  return {
-    time: 0,
-    players: createDefaultPlayers(2),
-    planets: times(() => createPlanet(randomMassForPlanet()))(random(5, 15)),
-    suns: [],
   };
 }
 

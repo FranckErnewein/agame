@@ -40,10 +40,10 @@ const Space: FC<SpaceComponentProps> = ({
               {...{ planet, dispatchUi, ui, dispatchGame, game }}
             />
           ))}
-          {game.players.map((player) => {
-            return player.ships.map((ship, i) => (
+          {game.ships.map((ship, i) => {
+            return (
               <ShipComponent key={i} {...{ ui, ship, dispatchGame, game }} />
-            ));
+            );
           })}
           {game.suns.map((sun, i) => (
             <SunComponent key={i} {...{ sun }} />

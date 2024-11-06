@@ -1,6 +1,6 @@
 import { curry, minBy, map, filter, compose, flow } from "lodash/fp";
 import { G, UA } from "./physics";
-import * as generator from "./generator";
+// import * as generator from "./generator";
 import { add, sub, scale, magnitude, Vec2 } from "./vector";
 import {
   Position,
@@ -22,14 +22,14 @@ import {
 
 export type Ship = Movable &
   Hitable & {
+    player: string;
     orbit: Planet | null;
     stuckOn: Planet | null;
   };
 
 export interface Player {
+  id: string;
   ready: boolean;
-  ships: Ship[];
-  planetSelected: Planet | null;
 }
 
 export type Planet = Positionable &
@@ -54,6 +54,7 @@ export interface Cluster {
 export interface Game {
   time: number;
   players: Player[];
+  ships: Ship[];
   planets: Planet[];
   suns: Sun[];
 }
@@ -149,18 +150,15 @@ export const gameEventLoop =
     return {
       ...game,
       time: game.time + timer,
-      players: map((player: Player) => ({
-        ...player,
-        ships: compose(
-          filter(doesntHitAnySun(game.suns)),
-          map(bounceOnPlanets(game.planets)),
-          iteratePairs(collideShips),
-          // map(bounceBetweenShip(player.ships)),
-          map(applyGravity(timer, [...game.planets, ...game.suns])),
-          map(move(timer))
-          // filter(isInWorld)
-        )(player.ships),
-      }))(game.players),
+      ships: compose(
+        filter(doesntHitAnySun(game.suns)),
+        map(bounceOnPlanets(game.planets)),
+        iteratePairs(collideShips),
+        // map(bounceBetweenShip(player.ships)),
+        map(applyGravity(timer, [...game.planets, ...game.suns])),
+        map(move(timer))
+        // filter(isInWorld)
+      )(game.ships),
     };
   };
 
@@ -173,29 +171,18 @@ export function gameReducer(game: Game, action: GameAction): Game {
     case "SEND_SHIP":
       return {
         ...game,
-        players: game.players.map((player) => {
-          return player === action.player
-            ? { ...player, ships: [...player.ships, action.ship] }
-            : player;
-        }),
+        ships: [...game.ships, action.ship],
       };
     case "MOVE_SHIP":
       return {
         ...game,
-        players: game.players.map((player) => {
-          return player === action.player
+        ships: game.ships.map((ship) => {
+          return ship === action.ship
             ? {
-                ...player,
-                ships: player.ships.map((ship) => {
-                  return ship === action.ship
-                    ? {
-                        ...ship,
-                        velocity: action.velocity,
-                      }
-                    : ship;
-                }),
+                ...ship,
+                velocity: action.velocity,
               }
-            : player;
+            : ship;
         }),
       };
     default:
@@ -211,11 +198,12 @@ export type GameAction =
   | { type: "MOVE_SHIP"; player: Player; ship: Ship; velocity: Velocity };
 
 // export const iniatialGameState = generator.generateGame(2);
-export const iniatialGameState = generator.generatePuzzle();
+// export const iniatialGameState = generator.generatePuzzle();
 
 export const emptyGame: Game = {
   time: 0,
   players: [],
   planets: [],
+  ships: [],
   suns: [],
 };

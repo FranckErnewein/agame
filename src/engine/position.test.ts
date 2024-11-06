@@ -6,7 +6,8 @@ import {
   replaceOnCollision,
   exchangeVelocity,
 } from "./position";
-import { vec0, movable, positionable, hitable, ship } from "./testUtils";
+import { createShip } from "./generator";
+import { vec0, movable, positionable, hitable } from "./testUtils";
 
 describe("position", () => {
   describe("move", () => {
@@ -84,9 +85,9 @@ describe("position", () => {
   });
   describe("exchangeVelocity", () => {
     it("should transfert velocity on X", () => {
-      const [s1, s2] = exchangeVelocity([
-        ship([0, 0], [0, 0]),
-        ship([-5, 0], [10, 0]),
+      const [s1, s2] = exchangeVelocity(0.75)([
+        createShip({ position: [0, 0], velocity: [0, 0] }),
+        createShip({ position: [-5, 0], velocity: [10, 0] }),
       ]);
       expect(vec0(s1.velocity)).toEqual([7.5, 0]);
       expect(vec0(s2.velocity)).toEqual([0, 0]);

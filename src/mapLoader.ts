@@ -1,4 +1,4 @@
-import { last, zip, noop, flow, filter, map, sortBy, times } from "lodash/fp";
+import { flatten, zip, flow, filter, map, sortBy, times } from "lodash/fp";
 
 import {
   createShip,
@@ -27,6 +27,7 @@ interface JSONSpaceObject {
 export interface JSONPuzzle {
   players: JSONPlayerPuzzle[];
   planets: JSONSpaceObject[];
+  ships: JSONShip[];
   suns: JSONSpaceObject[];
 }
 
@@ -36,46 +37,47 @@ export interface JSONMultiplayer {
 }
 
 export const createInitialPuzzleGameState = (json: JSONPuzzle): Game => {
+  console.log(json);
   return {
     time: 0,
-    players: [
-      createPlayer({
-        ships: map((s: JSONShip) => createShip(s.position), []),
-      }),
-    ],
-    planets: map(
-      (p: JSONSpaceObject) => createPlanet(p.mass, p.position),
-      json.planets
+    players: [createPlayer()],
+    ships: map(
+      ({ position }: JSONShip) => createShip({ position }),
+      json.ships
     ),
-    suns: map((p: JSONSpaceObject) => createSun(p.mass, p.position), json.suns),
+    planets: map((p: JSONSpaceObject) => createPlanet(p), json.planets),
+    suns: map((s: JSONSpaceObject) => createSun(s), json.suns),
   };
 };
 
 export const createInitialMultiPlayerGameState = (
   json: JSONMultiplayer
 ): Game => {
-  const planets = map(
-    (p: JSONSpaceObject) => createPlanet(p.mass, p.position),
-    json.planets
-  );
-  const players = flow([
+  const planets = map((p: JSONSpaceObject) => createPlanet(p), json.planets);
+  const ships = flow([
     zip(json.planets),
     filter(([p]) => !!p.startingPointForPlayer),
     sortBy(([p]) => p.startingPointForPlayer),
-    map(last),
-    map((planet) =>
-      createPlayer({
-        ships: times(
-          flow([noop, randomPosition, createShip, replaceOnSurface(planet)])
-        )(5),
-      })
+    map(([json, planet]) =>
+      times(
+        flow([
+          () =>
+            createShip({
+              position: randomPosition(),
+              player: json.startingPointForPlayer,
+            }),
+          replaceOnSurface(planet),
+        ])
+      )(5)
     ),
+    flatten,
   ])(planets);
   return {
     time: 0,
-    players,
+    players: times(flow([toString, createPlayer]))(2),
     planets,
-    suns: map((p: JSONSpaceObject) => createSun(p.mass, p.position), json.suns),
+    ships,
+    suns: map((p: JSONSpaceObject) => createSun(p), json.suns),
   };
 };
 
