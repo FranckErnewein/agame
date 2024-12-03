@@ -1,12 +1,11 @@
 import { useEffect, useReducer, FC } from "react";
-import "pixi.js";
 import { Stage } from "@pixi/react";
 import { useWindowSize } from "@react-hook/window-size";
 import { useParams } from "react-router-dom";
 
 import * as time from "../engine/time";
 import { gameReducer, emptyGame, MapSizeX } from "../engine/game";
-import { loadPuzzle } from "../mapLoader";
+import { loadPuzzle } from "../map/loader";
 import { playerUIReducer, initialPlayerUIState } from "../playerUI";
 
 import Space from "./Space";

@@ -1,23 +1,32 @@
-import { useEffect, useReducer, FC } from "react";
-import "pixi.js";
+import { useEffect, useReducer, useState, FC } from "react";
+import styled from "styled-components";
 import { Stage } from "@pixi/react";
+import { useParams } from "react-router-dom";
 import { useWindowSize } from "@react-hook/window-size";
 import { io, Socket } from "socket.io-client";
 
-import { PlayerCommand, GameEvent } from "../protocol";
-import { gameReducer, emptyGame, MapSizeX } from "../engine/game";
+import { createClientRunner, PlayerCommand, ServerEvent } from "../protocol";
+import { emptyGame, MapSizeX, Game, GameAction } from "../engine/game";
 import { playerUIReducer, initialPlayerUIState } from "../playerUI";
-import { loadMultiPlayer } from "../mapLoader";
 
-import { useGameParams } from "./hooks";
 import Space from "./Space";
 import Minimap from "./Minimap";
 import Time from "./Time";
 
+const UI = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 10px;
+`;
+
 const Multiplayer: FC = () => {
-  const { gameId, playerId } = useGameParams();
+  const { playerId } = useParams();
+  const [game, setGame] = useState<Game>(emptyGame);
+  const [dispatchGame, setDispatchGame] = useState<
+    (action: GameAction) => void
+  >(() => null);
   const [width, height] = useWindowSize();
-  const [game, dispatchGame] = useReducer(gameReducer, emptyGame);
   const [ui, dispatchUi] = useReducer(playerUIReducer, {
     ...initialPlayerUIState,
     viewport: { width, height },
@@ -25,20 +34,21 @@ const Multiplayer: FC = () => {
   });
 
   useEffect(() => {
-    const socket: Socket<PlayerCommand, GameEvent> = io("ws://localhost:3000/");
+    const socket: Socket<ServerEvent, PlayerCommand> = io(
+      "ws://localhost:3000/"
+    );
     socket.connect();
-    socket.on("action", (action) => {
-      console.log("receive and dispatch action", action);
-      dispatchGame(action);
-    });
-    loadMultiPlayer("1").then((game) => {
-      console.log(game);
-      socket.emit("action", { type: "SELECT_MAP", game });
+    socket.once("init", (initState) => {
+      const onLockStep = createClientRunner(initState, setGame);
+      socket.on("lockstep", onLockStep);
+      setDispatchGame(() => (action: GameAction) => {
+        socket.emit("action", action);
+      });
     });
     return () => {
       socket.close();
     };
-  }, [gameId, playerId]);
+  }, [playerId]);
 
   useEffect(() => {
     dispatchUi({ type: "RESIZE", width, height });
@@ -60,11 +70,20 @@ const Multiplayer: FC = () => {
   }, [ui.zoom]);
 
   return (
-    <Stage options={{ background: 0x000000 }} width={width} height={height}>
-      <Space {...{ game, dispatchGame, ui, dispatchUi }} />
-      <Minimap ui={ui} stageSize={[width, height]} {...{ game }} />
-      <Time time={game.time} />
-    </Stage>
+    <>
+      <Stage options={{ background: 0x000000 }} width={width} height={height}>
+        <Space {...{ game, dispatchGame, ui, dispatchUi }} />
+        <Minimap ui={ui} stageSize={[width, height]} {...{ game }} />
+        <Time time={game.time} />
+      </Stage>
+      <UI>
+        <button
+          onClick={() => dispatchGame({ type: "PLAYER_READY", playerId: "1" })}
+        >
+          Ready
+        </button>
+      </UI>
+    </>
   );
 };
 

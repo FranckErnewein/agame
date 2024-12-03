@@ -1,4 +1,13 @@
-import { flatten, zip, flow, filter, map, sortBy, times } from "lodash/fp";
+import {
+  toString,
+  flatten,
+  zip,
+  flow,
+  filter,
+  map,
+  sortBy,
+  times,
+} from "lodash/fp";
 
 import {
   createShip,
@@ -6,9 +15,9 @@ import {
   createPlanet,
   createPlayer,
   randomPosition,
-} from "./engine/generator";
-import { replaceOnSurface, Position } from "./engine/position";
-import { Game } from "./engine/game";
+} from "../engine/generator";
+import { replaceOnSurface, Position } from "../engine/position";
+import { emptyGame, Game } from "../engine/game";
 
 interface JSONShip {
   position: Position;
@@ -39,7 +48,7 @@ export interface JSONMultiplayer {
 export const createInitialPuzzleGameState = (json: JSONPuzzle): Game => {
   console.log(json);
   return {
-    time: 0,
+    ...emptyGame,
     players: [createPlayer()],
     ships: map(
       ({ position }: JSONShip) => createShip({ position }),
@@ -73,22 +82,10 @@ export const createInitialMultiPlayerGameState = (
     flatten,
   ])(planets);
   return {
-    time: 0,
+    ...emptyGame,
     players: times(flow([toString, createPlayer]))(2),
     planets,
     ships,
     suns: map((p: JSONSpaceObject) => createSun(p), json.suns),
   };
-};
-
-export const loadPuzzle = async (puzzleId: string): Promise<Game> => {
-  return fetch(`/puzzle/${puzzleId}.json`)
-    .then((r) => r.json())
-    .then(createInitialPuzzleGameState);
-};
-
-export const loadMultiPlayer = async (mapId: string): Promise<Game> => {
-  return fetch(`/maps/${mapId}.json`)
-    .then((r) => r.json())
-    .then(createInitialMultiPlayerGameState);
 };

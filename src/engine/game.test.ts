@@ -5,8 +5,9 @@ import {
   findCloserPlanet,
   deflectShipVelocity,
   iteratePairs,
+  playersAreReady,
 } from "./game";
-import { createShip } from "./generator";
+import { createShip, createPlayer } from "./generator";
 
 const defaultPlanet: Planet = {
   mass: 100,
@@ -72,6 +73,24 @@ describe("game", () => {
       const spy = vi.spyOn(o, "fn");
       iteratePairs(o.fn, [1, 2, 3, 4, 5, 6]);
       expect(spy.mock.calls).toHaveLength(5 + 4 + 3 + 2 + 1);
+    });
+  });
+  describe("playersAreReady", () => {
+    it("should detect all player ready", () => {
+      expect(
+        playersAreReady([
+          createPlayer({ ready: true }),
+          createPlayer({ ready: true }),
+        ])
+      ).toBe(true);
+    });
+    it("should detect all player ready", () => {
+      expect(
+        playersAreReady([
+          createPlayer({ ready: false }),
+          createPlayer({ ready: true }),
+        ])
+      ).toBe(false);
     });
   });
 });

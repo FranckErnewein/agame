@@ -20,7 +20,6 @@ export interface ShipComponentProps {
   game?: Game;
   dispatchGame?: Dispatch<GameAction>;
   ui: PlayerUI;
-  ownedByPlayer?: boolean;
 }
 
 const pixiEventToVec2 = (e: FederatedPointerEvent) => [e.global.x, e.global.y];
@@ -30,10 +29,10 @@ const ShipComponent: FC<ShipComponentProps> = ({
   dispatchGame,
   game,
   ui,
-  ownedByPlayer,
 }) => {
   const [start, setStart] = useState<null | Vec2>(null);
   const [delta, setDelta] = useState<null | Vec2>(null);
+  // const { playerId } = useGameParams();
 
   const size = ship.radius * 2 * 1.4;
   const velocity = start && delta ? scale(1 / time.year, delta) : null;
@@ -74,7 +73,6 @@ const ShipComponent: FC<ShipComponentProps> = ({
     <>
       <Container
         scale={eq(ship.velocity, [0, 0]) ? 0.95 : 1}
-        alpha={ownedByPlayer ? 1 : 0.5}
         position={ship.position}
         eventMode="static"
         onmousedown={begin}

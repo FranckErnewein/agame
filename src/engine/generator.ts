@@ -3,6 +3,7 @@ import { toString, map, times, random } from "lodash/fp";
 import { Vec2 } from "./vector";
 import { Position, distance, replaceOnSurface } from "./position";
 import {
+  emptyGame,
   Player,
   Planet,
   Sun,
@@ -31,6 +32,12 @@ const zeroZero = (): Vec2 => [0, 0];
 const randomMassForPlanet = () => random(5e24, 5e25);
 const randomMassForSun = () => random(9e24, 6e25);
 
+let _id = 0;
+export const newId = () => {
+  _id++;
+  return toString(_id);
+};
+
 export const randomPosition = (): Position => [
   random(100, MapSizeX - 100),
   random(100, MapSizeY - 100),
@@ -52,6 +59,7 @@ export const createPlanet = (planet: Partial<Planet>): Planet => ({
 });
 
 export const defaultSun = (): Sun => ({
+  id: newId(),
   position: center(),
   mass: 4e25,
   radius: massToRadius(4e25),
@@ -62,6 +70,7 @@ export const createSun = (sun: Partial<Sun>): Sun => ({
 });
 
 const defaultShip = (): Ship => ({
+  id: newId(),
   player: "1",
   position: zeroZero(),
   stuckOn: null,
@@ -105,10 +114,11 @@ export function generateRandomGame(playerCount: number): Game {
   console.log("generateRandomGame", playerCount, "(fake params)");
 
   return {
-    time: 0,
+    ...emptyGame,
     players: [createPlayer({ id: "1" }), createPlayer({ id: "2" })],
     ships: [
       {
+        id: "3",
         player: "1",
         radius: massToRadius(shipMass),
         orbit: null,
@@ -118,7 +128,6 @@ export function generateRandomGame(playerCount: number): Game {
       },
     ],
     planets: generateRandomPlanets(random(2, 5)),
-    suns: [],
   };
 }
 
@@ -139,7 +148,7 @@ export function generatePuzzle(): Game {
 
   const startingPlanet = planets[0];
   return {
-    time: 0,
+    ...emptyGame,
     players: [createPlayer({ id: "1" })],
     ships: map(replaceOnSurface(startingPlanet), ships),
     planets,

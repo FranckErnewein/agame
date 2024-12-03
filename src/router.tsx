@@ -13,7 +13,7 @@ const router = createBrowserRouter([
     element: <Puzzle />,
   },
   {
-    path: "/multi/game/:gameId/:playerId",
+    path: "/multi/:gameId/player/:playerId",
     element: <MutliPlayer />,
   },
 ]);
