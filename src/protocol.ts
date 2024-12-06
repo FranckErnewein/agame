@@ -28,7 +28,7 @@ const stepCountForLockStep = 16;
 const isLockStep = (step: number) => step % stepCountForLockStep === 0;
 
 const nextStep = (game: Game): Game => gameEventLoop(stepDuration)(game);
-const goToStep =
+export const goToStep =
   (step: number) =>
   (game: Game): Game =>
     game.step < step ? goToStep(step)(nextStep(game)) : game;
